@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Escreva seu Livro — Gráfica Lucel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0a08;--bg2:#111109;--gold:#d4a017;--gold2:#f0c040;--white:#f5f0e8;--muted:rgba(245,240,232,0.55);--card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.09);--radius:14px;--danger:#e24b4a}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+h1,h2,h3{font-family:'Playfair Display',serif;line-height:1.2}
+button{cursor:pointer;font-family:'DM Sans',sans-serif}
+textarea,input,select{font-family:'DM Sans',sans-serif}
+.hidden{display:none!important}
+
+/* NAVBAR */
+.navbar{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:rgba(10,10,8,.97);position:sticky;top:0;z-index:50}
+.navbar-logo{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold)}
+.btn-outline{background:none;border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);transition:all .15s}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{background:var(--gold);color:#0a0a08;border:none;border-radius:30px;padding:11px 28px;font-size:15px;font-weight:700;transition:background .15s;display:inline-block}
+.btn-gold:hover{background:var(--gold2)}
+.btn-gold:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:none;border:1px solid var(--border);border-radius:30px;padding:10px 20px;font-size:14px;color:var(--muted);transition:all .15s}
+.btn-ghost:hover{border-color:var(--muted)}
+
+/* FIELD */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.09em;text-transform:uppercase}
+.field input,.field textarea,.field select{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--white);font-size:14px;line-height:1.6}
+.field textarea{resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:rgba(212,160,23,.5)}
+.field select option{background:#1a190f}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a190f;border:1px solid var(--gold);border-radius:30px;padding:10px 22px;font-size:13px;color:var(--gold);z-index:9999;transition:transform .3s;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* TELAS */
+.tela{display:none;min-height:100vh;flex-direction:column}
+.tela.ativa{display:flex}
+
+/* LOGIN */
+#t-login{align-items:center;justify-content:center;padding:40px 24px}
+.login-box{width:100%;max-width:400px}
+.login-logo{font-family:'Playfair Display',serif;font-size:28px;color:var(--gold);text-align:center;margin-bottom:6px}
+.login-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:36px}
+.login-toggle{text-align:center;margin-top:18px;font-size:13px;color:var(--muted)}
+.login-toggle span{color:var(--gold);cursor:pointer;font-weight:600}
+.login-expira{text-align:center;margin-top:14px;font-size:12px;color:var(--muted);padding:8px 16px;background:rgba(212,160,23,.08);border-radius:8px;border:1px solid rgba(212,160,23,.2)}
+.erro-msg{background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#e24b4a;margin-bottom:14px;display:none}
+
+/* PAINEL */
+.page-body{flex:1;padding:32px 24px;max-width:900px;width:100%;margin:0 auto}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.book-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 18px;cursor:pointer;transition:border-color .2s,transform .2s;position:relative}
+.book-card:hover{border-color:rgba(212,160,23,.4);transform:translateY(-2px)}
+.book-spine{width:38px;height:50px;border-radius:6px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.book-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:2px}
+.book-subtitle{font-size:12px;color:var(--gold);margin-bottom:6px;font-style:italic}
+.book-genre{font-size:12px;color:var(--muted)}
+.book-meta{font-size:11px;color:var(--muted);margin-top:10px;display:flex;gap:10px}
+.book-del{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--muted);font-size:16px;opacity:0;transition:opacity .2s;padding:2px 6px}
+.book-card:hover .book-del{opacity:1}
+.book-del:hover{color:var(--danger)}
+.empty-state{text-align:center;padding:70px 20px;color:var(--muted);grid-column:1/-1}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.modal-bg.aberto{display:flex}
+.modal{background:#16150c;border:1px solid var(--border);border-radius:20px;padding:32px 28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:22px;margin-bottom:22px}
+.modal-footer{display:flex;gap:10px;margin-top:24px}
+.btn-cancel{flex:1;background:none;border:1px solid var(--border);border-radius:30px;padding:11px;color:var(--muted);font-size:14px}
+.btn-confirm{flex:2;background:var(--gold);color:#0a0a08;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:700}
+.btn-confirm:hover{background:var(--gold2)}
+
+/* TELA CAPÍTULOS */
+.ch-info{margin-bottom:24px}
+.ch-info h2{font-size:26px;margin-bottom:4px}
+.ch-info .sub{font-size:14px;color:var(--gold);font-style:italic;margin-bottom:8px}
+.ch-info .resumo{font-size:13px;color:var(--muted);line-height:1.65;max-width:680px}
+
+/* BANNER GERANDO */
+.banner{background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:14px}
+.spin{display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-wrap{background:rgba(255,255,255,.07);border-radius:4px;height:6px;margin-bottom:20px;overflow:hidden}
+.progress-bar{height:100%;background:var(--gold);transition:width .4s;border-radius:4px}
+
+/* CARDS CAPÍTULOS */
+.chapter-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
+.ch-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.ch-card-head{padding:16px 18px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.ch-num{width:32px;height:32px;border-radius:8px;background:rgba(212,160,23,.15);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--gold);flex-shrink:0}
+.ch-card-title{font-size:15px;font-weight:600;flex:1}
+.badge{font-size:11px;padding:3px 10px;border-radius:12px;flex-shrink:0}
+.badge.pendente{background:rgba(255,255,255,.06);color:var(--muted)}
+.badge.escrito{background:rgba(45,170,100,.15);color:#2daa64}
+.badge.editando{background:rgba(212,160,23,.15);color:var(--gold)}
+.ch-chevron{color:var(--muted);font-size:14px;transition:transform .2s}
+.ch-card-body{display:none;padding:16px 18px;border-top:1px solid var(--border)}
+.ch-card-body.aberto{display:block}
+.ch-resumo-box{font-size:13px;color:var(--muted);line-height:1.65;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid rgba(212,160,23,.3);margin-bottom:12px}
+.ch-edit-area{display:none;flex-direction:column;gap:8px;margin-bottom:12px}
+.ch-edit-area input,.ch-edit-area textarea{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--white);font-size:13px;width:100%}
+.ch-edit-area textarea{min-height:70px;resize:vertical;line-height:1.6}
+.ch-edit-area input:focus,.ch-edit-area textarea:focus{outline:none;border-color:rgba(212,160,23,.4)}
+.ch-btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.ch-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);transition:all .15s}
+.ch-btn:hover{border-color:var(--gold);color:var(--gold)}
+.ch-texto-preview{margin-top:12px;font-size:13px;line-height:1.8;color:var(--white);white-space:pre-wrap;max-height:260px;overflow-y:auto;padding:14px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border)}
+
+/* BOTÃO APROVAR */
+.aprovar-box{background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.3);border-radius:16px;padding:28px;text-align:center;margin-bottom:28px}
+.aprovar-box p{font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.6}
+
+/* EXPORTAR */
+.export-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:40px}
+.export-box h4{font-size:15px;font-weight:600;margin-bottom:16px}
+.export-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.exp-btn{background:none;border:1px solid var(--border);border-radius:10px;padding:16px 12px;text-align:center;color:var(--white);font-size:13px;cursor:pointer;transition:all .2s}
+.exp-btn:hover{border-color:rgba(212,160,23,.4)}
+.exp-btn span{display:block;font-size:22px;margin-bottom:6px}
+.exp-btn.lucel{border-color:rgba(212,160,23,.4);background:rgba(212,160,23,.07);color:var(--gold);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODAL NOVO LIVRO -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3>Novo livro</h3>
+    <div class="field"><label>Título do livro</label><input type="text" id="f-titulo" placeholder="Ex: O Último Horizonte"></div>
+    <div class="field"><label>Subtítulo (opcional)</label><input type="text" id="f-subtitulo" placeholder="Ex: Uma jornada além do possível"></div>
+    <div class="field"><label>Gênero</label>
+      <select id="f-genero"><option value="">Selecione o gênero</option>
+        <option>Romance</option><option>Ficção científica</option><option>Fantasia</option>
+        <option>Terror</option><option>Suspense / Thriller</option><option>Autoajuda</option>
+        <option>Biografia</option><option>Infantil</option><option>Poesia</option><option>Outro</option>
+      </select>
+    </div>
+    <div class="field"><label>Resumo / ideia do livro</label>
+      <textarea id="f-resumo" rows="5" placeholder="Descreva personagens, conflito central, o que quer transmitir... Quanto mais detalhes, melhor a IA estrutura os capítulos."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="criarLivro()">Criar e gerar capítulos →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA LOGIN -->
+<div class="tela ativa" id="t-login">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px">
+  <div class="login-box">
+    <div class="login-logo">✦ Escreva seu Livro</div>
+    <div class="login-sub">Powered by Gráfica Lucel</div>
+
+    <div id="f-login">
+      <div class="erro-msg" id="err-login"></div>
+      <div class="field"><label>E-mail</label><input type="email" id="l-email" placeholder="seu@email.com"></div>
+      <div class="field"><label>Senha</label><input type="password" id="l-senha" placeholder="••••••••"></div>
+      <button class="btn-gold" style="width:100%" onclick="entrar()" id="btn-entrar">Entrar →</button>
+      <div class="login-toggle">Não tem conta? <span onclick="alternarForm()">Cadastre-se</span></div>
+    </div>
+
+    <div id="f-cadastro" style="display:none">
+      <div class="erro-msg" id="err-cadastro"></div>
+      <div class="field"><label>Nome</label><input type="text" id="c-nome" placeholder="Seu nome"></div>
+      <div class="field"><label>E-mail</label><input type="email" id="c-email" placeholder="seu@email.com"></div>
+      <div class="field"><label>Senha</label><input type="password" id="c-senha" placeholder="Mínimo 6 caracteres"></div>
+      <button class="btn-gold" style="width:100%" onclick="cadastrar()" id="btn-cadastrar">Criar conta →</button>
+      <div class="login-toggle">Já tem conta? <span onclick="alternarForm()">Entrar</span></div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- TELA PAINEL -->
+<div class="tela" id="t-painel">
+  <nav class="navbar">
+    <span class="navbar-logo">✦ Escreva seu Livro</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:13px;color:var(--muted)" id="nav-nome"></span>
+      <button class="btn-outline" onclick="sair()">Sair</button>
+    </div>
+  </nav>
+  <div class="page-body">
+    <div class="page-header">
+      <div>
+        <h2>Meus Livros</h2>
+        <div id="nav-expira" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <button class="btn-gold" style="padding:10px 22px;font-size:14px" onclick="abrirModal()">+ Novo livro</button>
+    </div>
+    <div class="books-grid" id="books-grid"></div>
+  </div>
+</div>
+
+<!-- TELA CAPÍTULOS -->
+<div class="tela" id="t-capitulos">
+  <nav class="navbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="btn-outline" onclick="voltarPainel()">← Painel</button>
+      <span class="navbar-logo" id="nav-titulo-livro" style="font-size:16px"></span>
+    </div>
+    <button class="btn-outline" style="color:var(--gold);border-color:rgba(212,160,23,.4)" onclick="regerarEstrutura()">↻ Refazer estrutura</button>
+  </nav>
+  <div class="page-body">
+    <div class="ch-info">
+      <h2 id="exib-titulo"></h2>
+      <div class="sub" id="exib-subtitulo"></div>
+      <div class="resumo" id="exib-resumo"></div>
+    </div>
+
+    <div class="banner hidden" id="banner">
+      <span class="spin">⚙</span>
+      <span id="banner-msg">Aguarde...</span>
+    </div>
+    <div class="progress-wrap hidden" id="prog-wrap">
+      <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+    </div>
+
+    <div class="chapter-cards" id="chapter-cards"></div>
+
+    <div class="aprovar-box hidden" id="aprovar-box">
+      <p>Revise os capítulos acima e edite o que quiser.<br>Quando estiver satisfeito, clique para a IA escrever o livro completo.</p>
+      <button class="btn-gold" style="padding:14px 40px;font-size:16px" onclick="gerarLivro()">✨ Aprovar estrutura e gerar livro completo</button>
+    </div>
+
+    <div class="export-box hidden" id="export-box">
+      <h4>Salvar livro</h4>
+      <div class="export-grid">
+        <button class="exp-btn" onclick="baixarDocx()"><span>📝</span>Baixar .docx</button>
+        <button class="exp-btn lucel" onclick="enviarLucel()"><span>✨</span>PDF profissional via Gráfica Lucel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── ESTADO ───────────────────────────────────────────────────────
+const DB_KEY = 'gl_v4';
+let livros = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+let token = localStorage.getItem('gl_token') || null;
+let usuario = JSON.parse(localStorage.getItem('gl_usuario') || 'null');
+let livroAtual = null;
+
+// ─── UTILITÁRIOS ──────────────────────────────────────────────────
+function salvar(){ localStorage.setItem(DB_KEY, JSON.stringify(livros)); }
+function toast(msg, dur=3000){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), dur); }
+function tela(id){ document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
+function mostrar(id){ document.getElementById(id).classList.remove('hidden'); }
+function esconder(id){ document.getElementById(id).classList.add('hidden'); }
+function prog(p){ document.getElementById('prog-bar').style.width=p+'%'; }
+function erroLogin(msg){ const el=document.getElementById('err-login'); el.textContent=msg; el.style.display=msg?'block':'none'; }
+function erroCad(msg){ const el=document.getElementById('err-cadastro'); el.textContent=msg; el.style.display=msg?'block':'none'; }
+
+// ─── INICIALIZAÇÃO ────────────────────────────────────────────────
+async function init(){
+  if(token && usuario){
+    try{
+      const r = await fetch('/api/verificar', { headers: { 'Authorization': 'Bearer ' + token } });
+      if(r.ok){
+        const d = await r.json();
+        usuario.expira_em = d.expira_em;
+        localStorage.setItem('gl_usuario', JSON.stringify(usuario));
+        entrarNoApp();
+        return;
+      }
+    } catch(e){}
+  }
+  localStorage.removeItem('gl_token');
+  localStorage.removeItem('gl_usuario');
+  token = null; usuario = null;
+  tela('t-login');
+}
+
+function entrarNoApp(){
+  document.getElementById('nav-nome').textContent = usuario.nome;
+  if(usuario.expira_em){
+    const d = new Date(usuario.expira_em);
+    const hoje = new Date();
+    const dias = Math.ceil((d - hoje) / (1000*60*60*24));
+    document.getElementById('nav-expira').textContent = `Acesso válido até ${d.toLocaleDateString('pt-BR')} (${dias} dias restantes)`;
+  }
+  tela('t-painel');
+  renderLivros();
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────
+function alternarForm(){
+  const l=document.getElementById('f-login'), c=document.getElementById('f-cadastro');
+  l.style.display=l.style.display==='none'?'block':'none';
+  c.style.display=c.style.display==='none'?'block':'none';
+  erroLogin(''); erroCad('');
+}
+
+async function entrar(){
+  const email = document.getElementById('l-email').value.trim();
+  const senha = document.getElementById('l-senha').value;
+  if(!email||!senha){ erroLogin('Preencha e-mail e senha'); return; }
+  const btn = document.getElementById('btn-entrar');
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  erroLogin('');
+  try{
+    const r = await fetch('/api/entrar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, senha}) });
+    const d = await r.json();
+    if(!r.ok){ erroLogin(d.erro || 'Erro ao entrar'); btn.disabled=false; btn.textContent='Entrar →'; return; }
+    token = d.token;
+    usuario = { nome: d.nome, email: d.email, expira_em: d.expira_em };
+    localStorage.setItem('gl_token', token);
+    localStorage.setItem('gl_usuario', JSON.stringify(usuario));
+    entrarNoApp();
+  } catch(e){
+    erroLogin('Erro de conexão com o servidor');
+    btn.disabled=false; btn.textContent='Entrar →';
+  }
+}
+
+async function cadastrar(){
+  const nome = document.getElementById('c-nome').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const senha = document.getElementById('c-senha').value;
+  if(!nome||!email||!senha){ erroCad('Preencha todos os campos'); return; }
+  const btn = document.getElementById('btn-cadastrar');
+  btn.disabled=true; btn.textContent='Criando conta...';
+  erroCad('');
+  try{
+    const r = await fetch('/api/cadastrar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nome, email, senha}) });
+    const d = await r.json();
+    if(!r.ok){ erroCad(d.erro || 'Erro ao cadastrar'); btn.disabled=false; btn.textContent='Criar conta →'; return; }
+    toast('Conta criada! Aguarde liberação do acesso.', 5000);
+    alternarForm();
+    btn.disabled=false; btn.textContent='Criar conta →';
+  } catch(e){
+    erroCad('Erro de conexão com o servidor');
+    btn.disabled=false; btn.textContent='Criar conta →';
+  }
+}
+
+function sair(){
+  token=null; usuario=null;
+  localStorage.removeItem('gl_token');
+  localStorage.removeItem('gl_usuario');
+  tela('t-login');
+}
+
+// ─── API CLAUDE (via backend seguro) ─────────────────────────────
+async function chamarClaude(body){
+  const r = await fetch('/api/claude', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+    body: JSON.stringify(body)
+  });
+  if(r.status===401||r.status===403){
+    const d = await r.json();
+    toast(d.erro || 'Acesso expirado. Faça login novamente.', 5000);
+    sair(); throw new Error('auth');
+  }
+  return r.json();
+}
+
+// ─── PAINEL ───────────────────────────────────────────────────────
+const EMOJIS=['📘','📗','📕','📙','📓','📔'];
+const CORES=['#d4a017','#e94560','#4a90d9','#2ea87e','#9b59b6','#e67e22'];
+
+function renderLivros(){
+  const g=document.getElementById('books-grid'); g.innerHTML='';
+  if(!livros.length){ g.innerHTML='<div class="empty-state"><div style="font-size:52px;margin-bottom:16px">📚</div><p>Nenhum livro ainda.<br>Clique em <strong>Novo livro</strong> para começar.</p></div>'; return; }
+  livros.forEach((b,i)=>{
+    const chs=(b.capitulos||[]).length;
+    const escritos=(b.capitulos||[]).filter(c=>c.texto).length;
+    const d=document.createElement('div'); d.className='book-card';
+    d.innerHTML=`<div class="book-spine" style="background:${CORES[i%CORES.length]}22;border:1px solid ${CORES[i%CORES.length]}44">${EMOJIS[i%EMOJIS.length]}</div>
+      <div class="book-title">${b.titulo}</div>
+      ${b.subtitulo?`<div class="book-subtitle">${b.subtitulo}</div>`:''}
+      <div class="book-genre">${b.genero||'Sem gênero'}</div>
+      <div class="book-meta"><span>${chs} capítulo${chs!==1?'s':''}</span>${escritos?`<span style="color:#2daa64">✓ ${escritos} escrito${escritos!==1?'s':''}</span>`:''}</div>
+      <button class="book-del" onclick="deletarLivro(event,${i})">✕</button>`;
+    d.onclick=()=>abrirLivro(i); g.appendChild(d);
+  });
+}
+
+function deletarLivro(e,i){ e.stopPropagation(); if(!confirm('Excluir este livro?'))return; livros.splice(i,1); salvar(); renderLivros(); toast('Livro excluído.'); }
+function abrirModal(){ document.getElementById('modal').classList.add('aberto'); }
+function fecharModal(){ document.getElementById('modal').classList.remove('aberto'); ['f-titulo','f-subtitulo','f-resumo'].forEach(id=>document.getElementById(id).value=''); document.getElementById('f-genero').value=''; }
+
+async function criarLivro(){
+  const titulo=document.getElementById('f-titulo').value.trim();
+  const subtitulo=document.getElementById('f-subtitulo').value.trim();
+  const genero=document.getElementById('f-genero').value;
+  const resumo=document.getElementById('f-resumo').value.trim();
+  if(!titulo){ toast('Digite o título'); return; }
+  if(!resumo){ toast('Escreva o resumo do livro'); return; }
+  const livro={id:Date.now(),titulo,subtitulo,genero,resumo,capitulos:[]};
+  livros.push(livro); salvar();
+  livroAtual=livros.length-1;
+  fecharModal();
+  tela('t-capitulos');
+  carregarTela();
+  await gerarEstrutura();
+}
+
+function voltarPainel(){ tela('t-painel'); renderLivros(); }
+function abrirLivro(i){ livroAtual=i; tela('t-capitulos'); carregarTela(); }
+
+function carregarTela(){
+  const b=livros[livroAtual];
+  document.getElementById('nav-titulo-livro').textContent=b.titulo;
+  document.getElementById('exib-titulo').textContent=b.titulo;
+  document.getElementById('exib-subtitulo').textContent=b.subtitulo||'';
+  document.getElementById('exib-resumo').textContent=b.resumo||'';
+  esconder('banner'); esconder('prog-wrap'); esconder('aprovar-box'); esconder('export-box');
+  renderCapitulos();
+  if(b.capitulos&&b.capitulos.length){
+    const todosEscritos=b.capitulos.every(c=>c.texto&&c.texto.length>100);
+    if(todosEscritos){ mostrar('export-box'); } else { mostrar('aprovar-box'); }
+  }
+}
+
+// ─── GERAR ESTRUTURA ──────────────────────────────────────────────
+async function gerarEstrutura(){
+  const b=livros[livroAtual];
+  mostrar('banner'); mostrar('prog-wrap');
+  document.getElementById('banner-msg').textContent='A IA está criando a estrutura dos 12 capítulos...';
+  esconder('aprovar-box'); esconder('export-box');
+  prog(20);
+
+  const prompt=`Você é um escritor profissional. Crie a estrutura de um livro com EXATAMENTE 12 capítulos.
+
+Título: "${b.titulo}"
+${b.subtitulo?`Subtítulo: "${b.subtitulo}"`:''}
+Gênero: ${b.genero||'ficção'}
+Ideia do autor: "${b.resumo}"
+
+Retorne SOMENTE JSON puro, sem markdown, sem explicação:
+{"capitulos":[{"num":1,"titulo":"Título","resumo":"Resumo de 2-3 frases do capítulo"},{"num":2,...}]}`;
+
+  try{
+    prog(40);
+    const data = await chamarClaude({ model:'claude-sonnet-4-20250514', max_tokens:2000, messages:[{role:'user',content:prompt}] });
+    prog(80);
+    let txt=data.content?.[0]?.text||'{}';
+    txt=txt.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(txt);
+    b.capitulos=(parsed.capitulos||[]).map(c=>({num:c.num,titulo:c.titulo,resumo:c.resumo,texto:''}));
+    salvar(); prog(100);
+    setTimeout(()=>{
+      esconder('banner'); esconder('prog-wrap');
+      renderCapitulos();
+      mostrar('aprovar-box');
+      toast('12 capítulos criados! Revise e aprove para gerar o livro.');
+    },500);
+  }catch(e){
+    if(e.message==='auth') return;
+    document.getElementById('banner-msg').textContent='Erro ao gerar estrutura. Tente novamente.';
+    setTimeout(()=>esconder('banner'),3000);
+  }
+}
+
+async function regerarEstrutura(){
+  if(!confirm('Isso substitui os capítulos atuais. Continuar?'))return;
+  livros[livroAtual].capitulos=[];
+  salvar(); renderCapitulos();
+  await gerarEstrutura();
+}
+
+// ─── RENDER CARDS ─────────────────────────────────────────────────
+function renderCapitulos(){
+  const b=livros[livroAtual];
+  const container=document.getElementById('chapter-cards'); container.innerHTML='';
+  if(!b.capitulos||!b.capitulos.length){ container.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Nenhum capítulo ainda.</div>'; return; }
+  b.capitulos.forEach((ch,i)=>container.appendChild(buildCard(ch,i)));
+}
+
+function buildCard(ch,i){
+  const status=ch.texto?'escrito':'pendente';
+  const badgeLabel=ch.texto?'Escrito':'Pendente';
+  const div=document.createElement('div'); div.className='ch-card'; div.id='card-'+i;
+  div.innerHTML=`
+    <div class="ch-card-head" onclick="toggleCard(${i})">
+      <div class="ch-num">${ch.num}</div>
+      <div class="ch-card-title" id="ctitle-${i}">${ch.titulo}</div>
+      <span class="badge ${status}" id="badge-${i}">${badgeLabel}</span>
+      <span class="ch-chevron" id="chev-${i}">▾</span>
+    </div>
+    <div class="ch-card-body" id="cbody-${i}">
+      <div class="ch-resumo-box" id="cresumo-${i}">${ch.resumo||''}</div>
+      <div class="ch-edit-area" id="cedit-${i}" style="display:none;flex-direction:column;gap:8px;margin-bottom:12px">
+        <input id="ei-titulo-${i}" value="${(ch.titulo||'').replace(/"/g,'&quot;')}" placeholder="Título do capítulo">
+        <textarea id="ei-resumo-${i}" rows="3">${ch.resumo||''}</textarea>
+      </div>
+      ${ch.texto?`<div class="ch-texto-preview">${ch.texto.replace(/\n/g,'<br>').substring(0,600)}...</div>`:''}
+      <div class="ch-btn-row">
+        <button class="ch-btn" id="ebtn-${i}" onclick="toggleEditar(${i})">✎ Editar</button>
+      </div>
+    </div>`;
+  return div;
+}
+
+function toggleCard(i){
+  const body=document.getElementById('cbody-'+i);
+  const chev=document.getElementById('chev-'+i);
+  const aberto=body.classList.contains('aberto');
+  body.classList.toggle('aberto',!aberto);
+  chev.style.transform=aberto?'':'rotate(180deg)';
+}
+
+function toggleEditar(i){
+  const resumoEl=document.getElementById('cresumo-'+i);
+  const editEl=document.getElementById('cedit-'+i);
+  const btn=document.getElementById('ebtn-'+i);
+  const editando=editEl.style.display==='flex';
+  if(editando){
+    livros[livroAtual].capitulos[i].titulo=document.getElementById('ei-titulo-'+i).value;
+    livros[livroAtual].capitulos[i].resumo=document.getElementById('ei-resumo-'+i).value;
+    salvar();
+    resumoEl.textContent=livros[livroAtual].capitulos[i].resumo;
+    document.getElementById('ctitle-'+i).textContent=livros[livroAtual].capitulos[i].titulo;
+    toast('Capítulo salvo!');
+  }
+  editEl.style.display=editando?'none':'flex';
+  resumoEl.style.display=editando?'block':'none';
+  btn.textContent=editando?'✎ Editar':'✓ Salvar';
+}
+
+// ─── GERAR LIVRO COMPLETO ─────────────────────────────────────────
+async function gerarLivro(){
+  const b=livros[livroAtual];
+  esconder('aprovar-box');
+  mostrar('banner'); mostrar('prog-wrap');
+  const total=b.capitulos.length;
+
+  for(let i=0;i<total;i++){
+    const ch=b.capitulos[i];
+    document.getElementById('banner-msg').textContent=`Escrevendo capítulo ${i+1} de ${total}: "${ch.titulo}"...`;
+    prog(Math.round((i/total)*100));
+
+    const prompt=`Você é um escritor profissional de ${b.genero||'ficção'}. Escreva o capítulo ${ch.num} do livro "${b.titulo}".
+
+Ideia geral: "${b.resumo}"
+Título deste capítulo: "${ch.titulo}"
+O que acontece: "${ch.resumo}"
+
+Escreva o capítulo completo com NO MÍNIMO 2000 caracteres. Linguagem fluida, rica em detalhes e emoção. Retorne APENAS o texto do capítulo.`;
+
+    try{
+      const data = await chamarClaude({ model:'claude-sonnet-4-20250514', max_tokens:2500, messages:[{role:'user',content:prompt}] });
+      ch.texto=data.content?.[0]?.text||'';
+      salvar();
+      const badge=document.getElementById('badge-'+i);
+      if(badge){ badge.textContent='Escrito'; badge.className='badge escrito'; }
+    }catch(e){
+      if(e.message==='auth') return;
+      toast(`Erro no capítulo ${i+1}, continuando...`);
+    }
+    await new Promise(r=>setTimeout(r,500));
+  }
+
+  prog(100);
+  esconder('banner'); esconder('prog-wrap');
+  renderCapitulos();
+  mostrar('export-box');
+  document.getElementById('export-box').scrollIntoView({behavior:'smooth'});
+  toast('Livro completo gerado! Agora você pode baixar.', 4000);
+}
+
+// ─── EXPORTAR ─────────────────────────────────────────────────────
+async function baixarDocx(){
+  const b=livros[livroAtual];
+  if(!b.capitulos||!b.capitulos.length){ toast('Nenhum capítulo gerado.'); return; }
+  toast('Gerando arquivo DOCX...');
+  try{
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, PageBreak } = docx;
+    const children = [];
+    children.push(new Paragraph({ children:[new TextRun({text:b.titulo||'', bold:true, size:64, font:'Georgia'})], alignment:AlignmentType.CENTER, spacing:{before:2400,after:400} }));
+    if(b.subtitulo) children.push(new Paragraph({ children:[new TextRun({text:b.subtitulo, italics:true, size:36, font:'Georgia', color:'555555'})], alignment:AlignmentType.CENTER, spacing:{after:800} }));
+    if(b.genero) children.push(new Paragraph({ children:[new TextRun({text:b.genero, size:24, color:'888888'})], alignment:AlignmentType.CENTER, spacing:{before:1200} }));
+    children.push(new Paragraph({ children:[new PageBreak()] }));
+    children.push(new Paragraph({ children:[new TextRun({text:'Sumário', bold:true, size:48, font:'Georgia'})], alignment:AlignmentType.CENTER, spacing:{before:480, after:480} }));
+    (b.capitulos||[]).forEach(c=>{ children.push(new Paragraph({ children:[new TextRun({text:`Capítulo ${c.num} — ${c.titulo||''}`, size:24})], spacing:{after:120} })); });
+    children.push(new Paragraph({ children:[new PageBreak()] }));
+    (b.capitulos||[]).forEach((c,i)=>{
+      if(i>0) children.push(new Paragraph({ children:[new PageBreak()] }));
+      children.push(new Paragraph({ children:[new TextRun({text:`— Capítulo ${c.num} —`, size:22, color:'888888'})], alignment:AlignmentType.CENTER, spacing:{before:480, after:120} }));
+      children.push(new Paragraph({ children:[new TextRun({text:c.titulo||'', bold:true, size:36, font:'Georgia'})], alignment:AlignmentType.CENTER, spacing:{after:480} }));
+      const paragrafos=(c.texto||'').split('\n').filter(l=>l.trim());
+      paragrafos.forEach(p=>{ children.push(new Paragraph({ children:[new TextRun({text:p, size:24, font:'Georgia'})], alignment:AlignmentType.JUSTIFIED, indent:{firstLine:720}, spacing:{after:200}, line:360 })); });
+    });
+    const doc = new Document({ sections:[{ properties:{}, children }] });
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=(b.titulo||'livro').replace(/[^a-zA-Z0-9À-ú ]/g,'_')+'.docx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Livro .docx baixado com sucesso!');
+  }catch(e){ toast('Erro ao gerar DOCX: '+e.message); }
+}
+
+function enviarLucel(){
+  const b=livros[livroAtual];
+  const escritos=(b.capitulos||[]).filter(c=>c.texto).length;
+  const chars=(b.capitulos||[]).reduce((s,c)=>s+(c.texto?c.texto.length:0),0);
+  const msg=encodeURIComponent(`Olá! Quero publicar meu livro pela Gráfica Lucel.\n\nTítulo: ${b.titulo}\n${b.subtitulo?'Subtítulo: '+b.subtitulo+'\n':''}Gênero: ${b.genero||'-'}\nCapítulos: ${escritos}\nTamanho: ~${chars} caracteres\n\nGostaria de contratar o Pacote de Publicação.`);
+  window.open(`https://wa.me/5511934964127?text=${msg}`,'_blank');
+}
+
+// ─── INICIAR ──────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

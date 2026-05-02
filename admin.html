@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — Gráfica Lucel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0a08;--gold:#d4a017;--gold2:#f0c040;--white:#f5f0e8;--muted:rgba(245,240,232,0.55);--card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.09);--danger:#e24b4a;--green:#2daa64}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+.navbar{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:rgba(10,10,8,.97);position:sticky;top:0;z-index:50}
+.navbar-logo{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold)}
+.badge-admin{background:rgba(212,160,23,.15);color:var(--gold);font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600}
+.container{max-width:960px;margin:0 auto;padding:32px 24px}
+h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:24px}
+
+/* LOGIN ADMIN */
+#login-admin{max-width:380px;margin:80px auto;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px}
+#login-admin h2{text-align:center;margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.09em;text-transform:uppercase}
+.field input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--white);font-size:14px}
+.field input:focus{outline:none;border-color:rgba(212,160,23,.5)}
+.btn-gold{background:var(--gold);color:#0a0a08;border:none;border-radius:30px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;width:100%}
+.btn-gold:hover{background:var(--gold2)}
+.erro{color:var(--danger);font-size:13px;margin-top:12px;text-align:center;display:none}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:32px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
+.stat-n{font-family:'Playfair Display',serif;font-size:32px;color:var(--gold)}
+.stat-l{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* TABELA */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.table-head{display:grid;grid-template-columns:2fr 2.5fr 1fr 1.5fr 1fr;padding:12px 20px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.user-row{display:grid;grid-template-columns:2fr 2.5fr 1fr 1.5fr 1fr;padding:16px 20px;align-items:center;border-bottom:1px solid var(--border);transition:background .15s}
+.user-row:last-child{border-bottom:none}
+.user-row:hover{background:rgba(255,255,255,.03)}
+.user-nome{font-size:14px;font-weight:600}
+.user-email{font-size:13px;color:var(--muted)}
+.status-badge{font-size:11px;padding:4px 10px;border-radius:10px;display:inline-block;font-weight:600}
+.status-ativo{background:rgba(45,170,100,.15);color:var(--green)}
+.status-inativo{background:rgba(255,255,255,.06);color:var(--muted)}
+.status-expirado{background:rgba(226,75,74,.12);color:var(--danger)}
+.expira-txt{font-size:12px;color:var(--muted)}
+.acoes{display:flex;gap:6px;flex-wrap:wrap}
+.btn-sm{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-sm:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm.danger:hover{border-color:var(--danger);color:var(--danger)}
+.btn-sm.green:hover{border-color:var(--green);color:var(--green)}
+
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a190f;border:1px solid var(--gold);border-radius:30px;padding:10px 22px;font-size:13px;color:var(--gold);z-index:9999;transition:transform .3s}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* MODAL LIBERAR */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-bg.aberto{display:flex}
+.modal{background:#16150c;border:1px solid var(--border);border-radius:20px;padding:32px 28px;width:100%;max-width:380px}
+.modal h3{font-size:20px;margin-bottom:18px}
+.modal-footer{display:flex;gap:10px;margin-top:20px}
+.btn-cancel{flex:1;background:none;border:1px solid var(--border);border-radius:30px;padding:10px;color:var(--muted);font-size:13px;cursor:pointer}
+.btn-confirm{flex:2;background:var(--gold);color:#0a0a08;border:none;border-radius:30px;padding:10px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-confirm:hover{background:var(--gold2)}
+select{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--white);font-size:14px}
+select option{background:#1a190f}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modal-liberar">
+  <div class="modal">
+    <h3>Liberar acesso</h3>
+    <div class="field">
+      <label>Duração do acesso</label>
+      <select id="modal-dias">
+        <option value="30">30 dias (1 mês)</option>
+        <option value="60">60 dias (2 meses)</option>
+        <option value="90">90 dias (3 meses)</option>
+        <option value="365">365 dias (1 ano)</option>
+      </select>
+    </div>
+    <div id="modal-nome-usuario" style="font-size:13px;color:var(--muted);margin-top:4px"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmarLiberar()">✓ Liberar acesso</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN ADMIN -->
+<div id="login-admin">
+  <h2>✦ Admin</h2>
+  <div class="field"><label>Senha admin</label><input type="password" id="adm-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginAdmin()"></div>
+  <button class="btn-gold" onclick="loginAdmin()">Entrar →</button>
+  <div class="erro" id="adm-erro">Senha incorreta</div>
+</div>
+
+<!-- PAINEL ADMIN -->
+<div id="painel-admin" style="display:none">
+  <nav class="navbar">
+    <span class="navbar-logo">✦ Gráfica Lucel — Admin</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="badge-admin">Admin</span>
+      <button onclick="sairAdmin()" style="background:none;border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);cursor:pointer">Sair</button>
+    </div>
+  </nav>
+  <div class="container">
+    <h2>Usuários</h2>
+    <div class="stats" id="stats"></div>
+    <div class="table-wrap">
+      <div class="table-head">
+        <div>Nome</div>
+        <div>E-mail</div>
+        <div>Status</div>
+        <div>Expira em</div>
+        <div>Ações</div>
+      </div>
+      <div id="lista-usuarios"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let adminSenha = '';
+let usuarioSelecionado = null;
+
+function toast(msg, dur=3000){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),dur); }
+
+async function loginAdmin(){
+  const senha = document.getElementById('adm-senha').value;
+  if(!senha){ document.getElementById('adm-erro').style.display='block'; return; }
+  // Testar senha chamando uma rota admin
+  const r = await fetch('/api/admin/usuarios', { headers: { 'x-admin-password': senha } });
+  if(!r.ok){ document.getElementById('adm-erro').style.display='block'; return; }
+  adminSenha = senha;
+  document.getElementById('login-admin').style.display='none';
+  document.getElementById('painel-admin').style.display='block';
+  carregarUsuarios();
+}
+
+function sairAdmin(){ adminSenha=''; document.getElementById('login-admin').style.display='block'; document.getElementById('painel-admin').style.display='none'; document.getElementById('adm-senha').value=''; }
+
+async function carregarUsuarios(){
+  const r = await fetch('/api/admin/usuarios', { headers: { 'x-admin-password': adminSenha } });
+  const users = await r.json();
+  renderStats(users);
+  renderUsuarios(users);
+}
+
+function renderStats(users){
+  const ativos = users.filter(u=>u.ativo && (!u.expira_em || new Date(u.expira_em) >= new Date())).length;
+  const expirados = users.filter(u=>u.ativo && u.expira_em && new Date(u.expira_em) < new Date()).length;
+  const aguardando = users.filter(u=>!u.ativo).length;
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="stat-n">${users.length}</div><div class="stat-l">Total de contas</div></div>
+    <div class="stat"><div class="stat-n" style="color:#2daa64">${ativos}</div><div class="stat-l">Ativos agora</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--danger)">${expirados}</div><div class="stat-l">Expirados</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--muted)">${aguardando}</div><div class="stat-l">Aguardando liberação</div></div>`;
+}
+
+function renderUsuarios(users){
+  const el = document.getElementById('lista-usuarios');
+  if(!users.length){ el.innerHTML='<div class="empty">Nenhum usuário cadastrado ainda.</div>'; return; }
+  el.innerHTML = users.map(u=>{
+    const hoje = new Date();
+    const expirado = u.expira_em && new Date(u.expira_em) < hoje;
+    const status = !u.ativo ? 'inativo' : expirado ? 'expirado' : 'ativo';
+    const statusLabel = {inativo:'Aguardando', expirado:'Expirado', ativo:'Ativo'}[status];
+    const expiraStr = u.expira_em ? new Date(u.expira_em).toLocaleDateString('pt-BR') : '—';
+    const diasRestantes = u.expira_em ? Math.ceil((new Date(u.expira_em)-hoje)/(1000*60*60*24)) : null;
+    const expiraDisplay = u.expira_em ? `${expiraStr}${diasRestantes>0?' ('+diasRestantes+'d)':''}` : '—';
+    return `<div class="user-row">
+      <div><div class="user-nome">${u.nome}</div><div style="font-size:11px;color:var(--muted)">#${u.id} · ${new Date(u.criado_em).toLocaleDateString('pt-BR')}</div></div>
+      <div class="user-email">${u.email}</div>
+      <div><span class="status-badge status-${status}">${statusLabel}</span></div>
+      <div class="expira-txt">${expiraDisplay}</div>
+      <div class="acoes">
+        <button class="btn-sm green" onclick="abrirLiberar(${u.id},'${u.nome}')">▶ Liberar</button>
+        ${u.ativo?`<button class="btn-sm" onclick="revogar(${u.id})">✕ Revogar</button>`:''}
+        <button class="btn-sm danger" onclick="excluir(${u.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirLiberar(id, nome){
+  usuarioSelecionado = id;
+  document.getElementById('modal-nome-usuario').textContent = 'Usuário: ' + nome;
+  document.getElementById('modal-liberar').classList.add('aberto');
+}
+function fecharModal(){ document.getElementById('modal-liberar').classList.remove('aberto'); }
+
+async function confirmarLiberar(){
+  const dias = document.getElementById('modal-dias').value;
+  const r = await fetch(`/api/admin/liberar/${usuarioSelecionado}`, { method:'POST', headers:{'Content-Type':'application/json','x-admin-password':adminSenha}, body:JSON.stringify({dias}) });
+  const d = await r.json();
+  fecharModal();
+  if(d.ok){ toast(`Acesso liberado até ${new Date(d.expira_em).toLocaleDateString('pt-BR')}!`); carregarUsuarios(); }
+  else toast('Erro ao liberar');
+}
+
+async function revogar(id){
+  if(!confirm('Revogar acesso deste usuário?'))return;
+  const r = await fetch(`/api/admin/revogar/${id}`, { method:'POST', headers:{'x-admin-password':adminSenha} });
+  const d = await r.json();
+  if(d.ok){ toast('Acesso revogado.'); carregarUsuarios(); }
+}
+
+async function excluir(id){
+  if(!confirm('Excluir esta conta permanentemente?'))return;
+  const r = await fetch(`/api/admin/usuario/${id}`, { method:'DELETE', headers:{'x-admin-password':adminSenha} });
+  const d = await r.json();
+  if(d.ok){ toast('Usuário excluído.'); carregarUsuarios(); }
+}
+</script>
+</body>
+</html>
