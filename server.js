@@ -63,7 +63,7 @@ function deletarUsuario(id) {
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 function autenticar(req, res, next) {
   const auth = req.headers.authorization;
