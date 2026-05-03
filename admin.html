@@ -200,7 +200,15 @@ async function confirmarLiberar(){
   const r = await fetch(`/api/admin/liberar/${usuarioSelecionado}`, { method:'POST', headers:{'Content-Type':'application/json','x-admin-password':adminSenha}, body:JSON.stringify({dias}) });
   const d = await r.json();
   fecharModal();
-  if(d.ok){ toast(`Acesso liberado até ${new Date(d.expira_em).toLocaleDateString('pt-BR')}!`); carregarUsuarios(); }
+  if(d.ok){
+    toast(`Acesso liberado! E-mail enviado para ${d.email} ✅`, 4000);
+    carregarUsuarios();
+    // Abrir WhatsApp automaticamente
+    setTimeout(()=>{
+      const msg = encodeURIComponent(`Olá, ${d.nome}! 🎉\n\nSeu acesso à plataforma de geração de livros com IA foi liberado!\n\nAcesse agora: https://editoralucel.onrender.com\n\nEntre com o e-mail e senha que você cadastrou.\n\nQualquer dúvida é só chamar aqui! 📚\n\n— Gráfica Lucel`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }, 500);
+  }
   else toast('Erro ao liberar');
 }
 
