@@ -249,11 +249,37 @@ footer strong{color:var(--white)}
       <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px">Ao continuar você aceita nosso contrato de serviço digital</p>
     </div>
 
-    <!-- PIX (aparece após aceitar contrato) -->
-    <div class="buy-body" id="buy-body-pix" style="display:none">
+    <!-- CADASTRO (aparece após aceitar contrato) -->
+    <div class="buy-body" id="buy-body-cadastro" style="display:none">
       <div style="text-align:center;margin-bottom:20px">
         <div style="font-size:32px;margin-bottom:8px">✅</div>
-        <div style="font-size:15px;font-weight:600;color:var(--white)">Contrato aceito! Agora faça o PIX</div>
+        <div style="font-size:15px;font-weight:600;color:var(--white)">Contrato aceito! Crie sua conta</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">Cadastre-se para receber o acesso após o pagamento</div>
+      </div>
+      <div class="erro-msg" id="err-cad" style="background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.3);border-radius:10px;padding:10px 14px;font-size:13px;color:#e24b4a;margin-bottom:14px;display:none"></div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase">Nome completo</label>
+        <input type="text" id="cad-nome" placeholder="Seu nome completo" style="width:100%;background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;outline:none">
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase">E-mail</label>
+        <input type="email" id="cad-email" placeholder="seu@email.com" style="width:100%;background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;outline:none">
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase">Senha</label>
+        <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" style="width:100%;background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;outline:none">
+      </div>
+      <button class="btn-cta" style="width:100%;justify-content:center;font-size:15px;padding:15px" onclick="cadastrar()" id="btn-cad">
+        Cadastrar e ir para o pagamento →
+      </button>
+      <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px">Seus dados são usados apenas para liberar o acesso</p>
+    </div>
+
+    <!-- PIX (aparece após cadastro) -->
+    <div class="buy-body" id="buy-body-pix" style="display:none">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:32px;margin-bottom:8px">🎉</div>
+        <div style="font-size:15px;font-weight:600;color:var(--white)">Conta criada! Agora faça o PIX</div>
         <div style="font-size:13px;color:var(--muted);margin-top:4px">Após o pagamento, envie o comprovante no WhatsApp</div>
       </div>
       <div class="pix-box">
@@ -322,13 +348,49 @@ function fecharContrato(){
   document.getElementById('modal-contrato').classList.remove('open');
 }
 
-function aceitarContrato(){
+async function aceitarContrato(){
   if(!document.getElementById('check-contrato').checked) return;
   fecharContrato();
   document.getElementById('buy-body-initial').style.display='none';
-  document.getElementById('buy-body-pix').style.display='block';
+  document.getElementById('buy-body-cadastro').style.display='block';
   document.getElementById('comprar').scrollIntoView({behavior:'smooth'});
-  toast('Contrato aceito! Faça o PIX abaixo. ✅', 4000);
+  toast('Contrato aceito! Crie sua conta para continuar. ✅', 4000);
+}
+
+async function cadastrar(){
+  const nome = document.getElementById('cad-nome').value.trim();
+  const email = document.getElementById('cad-email').value.trim();
+  const senha = document.getElementById('cad-senha').value;
+  const errEl = document.getElementById('err-cad');
+  
+  if(!nome || !email || !senha){ errEl.textContent='Preencha todos os campos'; errEl.style.display='block'; return; }
+  if(senha.length < 6){ errEl.textContent='Senha deve ter mínimo 6 caracteres'; errEl.style.display='block'; return; }
+  
+  const btn = document.getElementById('btn-cad');
+  btn.disabled = true; btn.textContent = 'Criando conta...';
+  errEl.style.display='none';
+  
+  try {
+    const r = await fetch('/api/cadastrar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({nome, email, senha})
+    });
+    const d = await r.json();
+    if(!r.ok){ errEl.textContent = d.erro || 'Erro ao criar conta'; errEl.style.display='block'; btn.disabled=false; btn.textContent='Cadastrar e ir para o pagamento →'; return; }
+    
+    // Salvar email para o whatsapp
+    window._cadEmail = email;
+    window._cadNome = nome;
+    
+    document.getElementById('buy-body-cadastro').style.display='none';
+    document.getElementById('buy-body-pix').style.display='block';
+    toast('Conta criada com sucesso! Agora faça o PIX. 🎉', 4000);
+  } catch(e) {
+    errEl.textContent = 'Erro de conexão. Tente novamente.';
+    errEl.style.display='block';
+    btn.disabled=false; btn.textContent='Cadastrar e ir para o pagamento →';
+  }
 }
 
 function copiarPix(){
@@ -340,7 +402,9 @@ function copiarPix(){
 }
 
 function enviarWhats(){
-  const msg = encodeURIComponent('Olá! Acabei de fazer o PIX de R$ 97,00 para a Gráfica Lucel. Segue o comprovante em anexo. Aguardo liberação do acesso à plataforma de geração de livros. Obrigado!');
+  const nome = window._cadNome || '';
+  const email = window._cadEmail || '';
+  const msg = encodeURIComponent(`Olá! Acabei de fazer o PIX de R$ 97,00 para a Gráfica Lucel.\n\nMeus dados de cadastro:\nNome: ${nome}\nE-mail: ${email}\n\nSegue o comprovante em anexo. Aguardo liberação do acesso. Obrigado!`);
   window.open('https://wa.me/5511934964127?text='+msg,'_blank');
 }
 
