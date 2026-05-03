@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gráfica Lucel — Gere 10 Livros com IA por R$97</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0d1a;--bg2:#16132a;--bg3:#1e1a2e;--purple:#7c3aed;--purple2:#9f67ff;--accent:#a78bfa;--white:#f0eeff;--muted:rgba(200,190,255,0.55);--border:rgba(124,58,237,0.2);--border2:rgba(124,58,237,0.45);--green:#22c55e;--danger:#e24b4a}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+button{cursor:pointer;font-family:'Inter',sans-serif}
+
+/* HERO */
+.hero{text-align:center;padding:80px 24px 60px;background:radial-gradient(ellipse at 50% -20%,rgba(124,58,237,.25) 0%,transparent 70%);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%237c3aed' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,.2);border:1px solid var(--border2);border-radius:30px;padding:8px 20px;font-size:13px;font-weight:600;color:var(--accent);margin-bottom:28px;animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.4)}50%{box-shadow:0 0 0 8px rgba(124,58,237,0)}}
+.hero h1{font-size:clamp(32px,6vw,60px);font-weight:800;line-height:1.1;margin-bottom:20px;letter-spacing:-.02em}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:var(--muted);max-width:580px;margin:0 auto 40px;line-height:1.6}
+.hero-price{display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:32px}
+.price-from{font-size:13px;color:var(--muted);text-decoration:line-through}
+.price-main{font-size:52px;font-weight:800;color:var(--white);letter-spacing:-.02em;line-height:1}
+.price-main span{font-size:24px;font-weight:600;vertical-align:top;margin-top:8px;color:var(--accent)}
+.price-sub{font-size:13px;color:var(--muted)}
+.btn-cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--purple),#4f46e5);color:#fff;border:none;border-radius:50px;padding:18px 48px;font-size:18px;font-weight:700;letter-spacing:.01em;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 32px rgba(124,58,237,.5)}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(124,58,237,.6)}
+.hero-guarantee{margin-top:20px;font-size:13px;color:var(--muted)}
+.hero-guarantee span{color:var(--green)}
+
+/* BENEFÍCIOS */
+.section{padding:60px 24px;max-width:1000px;margin:0 auto}
+.section-title{font-size:28px;font-weight:700;text-align:center;margin-bottom:40px}
+.section-title span{color:var(--accent)}
+.benefits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.benefit-card{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color .2s,transform .2s}
+.benefit-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.benefit-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,.2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.benefit-title{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--white)}
+.benefit-text{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* COMO FUNCIONA */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;margin-top:16px}
+.step{text-align:center;padding:24px 16px}
+.step-num{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--purple),#4f46e5);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin:0 auto 16px;color:#fff}
+.step-title{font-size:15px;font-weight:600;margin-bottom:8px}
+.step-text{font-size:13px;color:var(--muted);line-height:1.6}
+.step-arrow{display:none}
+
+/* COMPRAR */
+.buy-section{padding:60px 24px;background:radial-gradient(ellipse at 50% 50%,rgba(124,58,237,.1) 0%,transparent 70%)}
+.buy-box{max-width:560px;margin:0 auto;background:var(--bg2);border:1px solid var(--border2);border-radius:24px;overflow:hidden}
+.buy-header{background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(79,70,229,.3));padding:28px;text-align:center;border-bottom:1px solid var(--border)}
+.buy-header h3{font-size:22px;font-weight:700;margin-bottom:4px}
+.buy-header p{font-size:14px;color:var(--muted)}
+.buy-body{padding:28px}
+.buy-items{margin-bottom:24px}
+.buy-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+.buy-item:last-child{border-bottom:none}
+.buy-item-check{color:var(--green);font-size:16px;flex-shrink:0}
+.pix-box{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.25);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px}
+.pix-label{font-size:12px;font-weight:600;color:rgba(34,197,94,.8);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.pix-key{font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px;font-family:monospace;letter-spacing:.02em}
+.pix-name{font-size:12px;color:var(--muted)}
+.pix-value{font-size:32px;font-weight:800;color:var(--green);margin:12px 0 4px}
+.pix-value-label{font-size:12px;color:var(--muted)}
+.btn-copy{width:100%;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:12px;color:var(--green);font-size:14px;font-weight:600;margin-bottom:16px;transition:all .15s}
+.btn-copy:hover{background:rgba(34,197,94,.25)}
+.btn-whats{width:100%;background:linear-gradient(135deg,#25d366,#128c7e);border:none;border-radius:10px;padding:14px;color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .15s}
+.btn-whats:hover{opacity:.9}
+
+/* CONTRATO */
+.contract-section{padding:60px 24px;max-width:800px;margin:0 auto}
+.contract-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px}
+.contract-title{font-size:20px;font-weight:700;margin-bottom:20px;color:var(--white)}
+.contract-text{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px}
+.contract-text strong{color:var(--white)}
+.contract-check{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;padding:16px;background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;cursor:pointer}
+.contract-check input{margin-top:2px;accent-color:var(--purple);width:18px;height:18px;flex-shrink:0;cursor:pointer}
+.contract-check label{font-size:14px;color:var(--white);line-height:1.5;cursor:pointer}
+.btn-contract{width:100%;background:linear-gradient(135deg,var(--purple),#4f46e5);color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-contract:hover{opacity:.9}
+.btn-contract:disabled{opacity:.4;cursor:not-allowed}
+
+/* FAQ */
+.faq{padding:60px 24px;max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0;cursor:pointer}
+.faq-q{font-size:15px;font-weight:600;color:var(--white);display:flex;justify-content:space-between;align-items:center}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.7;margin-top:12px;display:none}
+.faq-a.open{display:block}
+.faq-icon{color:var(--accent);font-size:18px;transition:transform .2s}
+.faq-icon.open{transform:rotate(45deg)}
+
+/* FOOTER */
+footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+footer strong{color:var(--white)}
+
+/* MODAL CONTRATO */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:20px;font-weight:700;margin-bottom:16px;color:var(--white)}
+.modal-text{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px;max-height:300px;overflow-y:auto;padding-right:8px}
+.modal-text p{margin-bottom:12px}
+.modal-text strong{color:var(--white)}
+.modal-check{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;padding:14px;background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;cursor:pointer}
+.modal-check input{margin-top:2px;accent-color:var(--purple);width:18px;height:18px;flex-shrink:0}
+.modal-check label{font-size:14px;color:var(--white);cursor:pointer;line-height:1.5}
+.modal-footer{display:flex;gap:10px}
+.btn-decline{flex:1;background:none;border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--muted);font-size:14px}
+.btn-accept{flex:2;background:linear-gradient(135deg,var(--purple),#4f46e5);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700}
+.btn-accept:disabled{opacity:.4;cursor:not-allowed}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--purple);border-radius:30px;padding:10px 22px;font-size:13px;color:var(--accent);z-index:9999;transition:transform .3s;pointer-events:none;font-weight:500}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODAL CONTRATO -->
+<div class="modal-bg" id="modal-contrato">
+  <div class="modal">
+    <h3>📄 Contrato de Serviço Digital</h3>
+    <div class="modal-text">
+      <p><strong>CONTRATO DE PRESTAÇÃO DE SERVIÇO DE GERAÇÃO DE LIVROS COM INTELIGÊNCIA ARTIFICIAL</strong></p>
+      <p>Celebrado entre <strong>Editora de Livros Lucel Ltda ME</strong>, CNPJ 37.871.182/0001-86, e-mail graficalucel@gmail.com, doravante denominada <strong>CONTRATADA</strong>, e o usuário que realizou o pagamento, doravante denominado <strong>CONTRATANTE</strong>.</p>
+      <p><strong>1. OBJETO DO CONTRATO</strong><br>A CONTRATADA disponibiliza ao CONTRATANTE acesso à plataforma de geração de livros com Inteligência Artificial, pelo prazo de 30 (trinta) dias corridos a partir da liberação do acesso, com direito à geração de até 10 (dez) livros completos com 12 capítulos cada.</p>
+      <p><strong>2. VALOR E FORMA DE PAGAMENTO</strong><br>O valor do serviço é de R$ 97,00 (noventa e sete reais), pago via PIX à chave CNPJ 37.871.182/0001-86, em favor de Editora de Livros Lucel Ltda ME. O serviço será liberado após confirmação do pagamento.</p>
+      <p><strong>3. POLÍTICA DE REEMBOLSO E NÃO-ESTORNO</strong><br>Por se tratar de produto digital com acesso imediato após liberação, <strong>não há direito a estorno ou reembolso</strong> após a liberação do acesso à plataforma, nos termos do Art. 49, parágrafo único, do Código de Defesa do Consumidor (CDC), que exclui o direito de arrependimento para produtos digitais entregues imediatamente. O CONTRATANTE declara estar ciente desta condição ao aceitar este contrato.</p>
+      <p><strong>4. LIMITAÇÕES DO SERVIÇO</strong><br>O conteúdo gerado pela IA é de responsabilidade do CONTRATANTE. A CONTRATADA não se responsabiliza pelo uso indevido dos livros gerados. O acesso expira automaticamente após 30 dias ou após a geração de 10 livros, o que ocorrer primeiro.</p>
+      <p><strong>5. SUPORTE</strong><br>Dúvidas e suporte via WhatsApp (11) 93496-4127 ou e-mail graficalucel@gmail.com.</p>
+      <p><strong>6. FORO</strong><br>As partes elegem o foro da Comarca de São Paulo/SP para dirimir quaisquer conflitos.</p>
+      <p style="margin-top:16px;font-size:12px;color:var(--muted)">Data de aceitação: <span id="data-contrato"></span></p>
+    </div>
+    <div class="modal-check">
+      <input type="checkbox" id="check-contrato" onchange="document.getElementById('btn-aceitar').disabled=!this.checked">
+      <label for="check-contrato">Li e aceito os termos do contrato acima, estando ciente de que <strong>não há direito a estorno</strong> após a liberação do acesso ao produto digital.</label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-decline" onclick="fecharContrato()">Cancelar</button>
+      <button class="btn-accept" id="btn-aceitar" disabled onclick="aceitarContrato()">✓ Aceitar e ver PIX</button>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">✨ Tecnologia de IA Avançada</div>
+  <h1>Gere até <span>10 Livros Completos</span><br>com Inteligência Artificial</h1>
+  <p class="hero-sub">Cada livro com 12 capítulos, mais de 100 páginas, diagramado profissionalmente e pronto para publicar. Tudo em minutos.</p>
+  <div class="hero-price">
+    <span class="price-from">De R$ 297,00</span>
+    <div class="price-main"><span>R$</span> 97</div>
+    <span class="price-sub">acesso completo por 30 dias · 10 livros incluídos</span>
+  </div>
+  <button class="btn-cta" onclick="abrirContrato()">
+    Quero gerar meus livros agora →
+  </button>
+  <p class="hero-guarantee"><span>✓</span> Pagamento 100% seguro via PIX · Acesso liberado em até 2h</p>
+</section>
+
+<!-- BENEFÍCIOS -->
+<section class="section">
+  <h2 class="section-title">Por que a <span>Gráfica Lucel</span>?</h2>
+  <div class="benefits-grid">
+    <div class="benefit-card">
+      <div class="benefit-icon">📚</div>
+      <div class="benefit-title">10 Livros Completos</div>
+      <div class="benefit-text">Gere até 10 livros com 12 capítulos cada, totalizando mais de 100 páginas por livro. Tudo com IA avançada.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">⚡</div>
+      <div class="benefit-title">Gerado em Minutos</div>
+      <div class="benefit-text">Em poucos minutos sua obra está pronta. A IA estrutura, escreve e diagrama o livro completo automaticamente.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📝</div>
+      <div class="benefit-title">Diagramação Profissional</div>
+      <div class="benefit-text">Arquivo .docx com formatação editorial: página 14×21, fontes profissionais, cabeçalho, rodapé e sumário.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">✝️</div>
+      <div class="benefit-title">Livros Cristãos</div>
+      <div class="benefit-text">Suporte especial para literatura cristã com versículos bíblicos integrados naturalmente ao texto de cada capítulo.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🎨</div>
+      <div class="benefit-title">Vários Gêneros</div>
+      <div class="benefit-text">Romance, ficção científica, fantasia, autoajuda, infantil, biografia, poesia e muito mais.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🖨️</div>
+      <div class="benefit-title">Pronto para Gráfica</div>
+      <div class="benefit-text">Arquivo pronto para impressão ou publicação digital. A Gráfica Lucel também oferece serviços de impressão.</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="section" style="padding-top:0">
+  <h2 class="section-title">Como <span>funciona</span>?</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Pague via PIX</div>
+      <div class="step-text">Faça o pagamento de R$ 97 via PIX para o CNPJ da Gráfica Lucel.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Crie sua conta</div>
+      <div class="step-text">Cadastre-se na plataforma e aguarde a liberação do acesso em até 2 horas.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Gere seus livros</div>
+      <div class="step-text">Escolha o gênero, informe o título e a ideia. A IA escreve tudo em minutos.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Baixe e publique</div>
+      <div class="step-text">Baixe o arquivo .docx diagramado e pronto para publicar ou imprimir.</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPRAR -->
+<section class="buy-section" id="comprar">
+  <div class="buy-box">
+    <div class="buy-header">
+      <h3>✨ Acesso Completo — R$ 97,00</h3>
+      <p>30 dias · 10 livros · diagramação profissional</p>
+    </div>
+    <div class="buy-body" id="buy-body-initial">
+      <div class="buy-items">
+        <div class="buy-item"><span class="buy-item-check">✓</span> 10 livros com 12 capítulos cada</div>
+        <div class="buy-item"><span class="buy-item-check">✓</span> Mais de 100 páginas por livro</div>
+        <div class="buy-item"><span class="buy-item-check">✓</span> Arquivo .docx diagramado profissionalmente</div>
+        <div class="buy-item"><span class="buy-item-check">✓</span> Suporte a livros cristãos com versículos</div>
+        <div class="buy-item"><span class="buy-item-check">✓</span> Acesso por 30 dias</div>
+        <div class="buy-item"><span class="buy-item-check">✓</span> Suporte via WhatsApp</div>
+      </div>
+      <button class="btn-cta" style="width:100%;justify-content:center;font-size:16px;padding:16px" onclick="abrirContrato()">
+        Aceitar contrato e pagar →
+      </button>
+      <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px">Ao continuar você aceita nosso contrato de serviço digital</p>
+    </div>
+
+    <!-- PIX (aparece após aceitar contrato) -->
+    <div class="buy-body" id="buy-body-pix" style="display:none">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:32px;margin-bottom:8px">✅</div>
+        <div style="font-size:15px;font-weight:600;color:var(--white)">Contrato aceito! Agora faça o PIX</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">Após o pagamento, envie o comprovante no WhatsApp</div>
+      </div>
+      <div class="pix-box">
+        <div class="pix-label">Chave PIX (CNPJ)</div>
+        <div class="pix-key" id="pix-key-text">37.871.182/0001-86</div>
+        <div class="pix-name">Editora de Livros Lucel Ltda ME</div>
+        <div class="pix-value">R$ 97,00</div>
+        <div class="pix-value-label">Valor exato a transferir</div>
+      </div>
+      <button class="btn-copy" onclick="copiarPix()">📋 Copiar chave PIX</button>
+      <button class="btn-whats" onclick="enviarWhats()">
+        <span style="font-size:20px">💬</span>
+        Enviar comprovante no WhatsApp
+      </button>
+      <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px">Acesso liberado em até 2 horas após confirmação</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <h2 class="section-title">Dúvidas <span>frequentes</span></h2>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">Quanto tempo leva para liberar o acesso? <span class="faq-icon">+</span></div>
+    <div class="faq-a">O acesso é liberado manualmente em até 2 horas após o recebimento do comprovante via WhatsApp, em horário comercial (9h às 18h).</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">Posso usar para qualquer tipo de livro? <span class="faq-icon">+</span></div>
+    <div class="faq-a">Sim! A plataforma suporta Romance, Ficção Científica, Fantasia, Terror, Autoajuda, Biografia, Infantil, Poesia, Livro Cristão e outros gêneros.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">O livro gerado é meu? Posso publicar? <span class="faq-icon">+</span></div>
+    <div class="faq-a">Sim! Todo o conteúdo gerado é de sua propriedade. Você pode editar, publicar e comercializar os livros como quiser.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">Como recebo o arquivo do livro? <span class="faq-icon">+</span></div>
+    <div class="faq-a">Após gerar o livro na plataforma, você baixa diretamente um arquivo .docx já diagramado profissionalmente, pronto para impressão ou publicação digital.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">Posso solicitar reembolso? <span class="faq-icon">+</span></div>
+    <div class="faq-a">Por se tratar de produto digital com acesso imediato, não há reembolso após a liberação do acesso, conforme o contrato aceito no momento da compra e o Art. 49 do CDC.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">E se eu tiver dúvidas ou problemas? <span class="faq-icon">+</span></div>
+    <div class="faq-a">Nosso suporte está disponível via WhatsApp (11) 93496-4127 e e-mail graficalucel@gmail.com, em horário comercial.</div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>Gráfica Lucel</strong> — Editora de Livros Lucel Ltda ME</p>
+  <p style="margin-top:6px">CNPJ: 37.871.182/0001-86 · graficalucel@gmail.com · (11) 93496-4127</p>
+  <p style="margin-top:6px">© 2026 Gráfica Lucel. Todos os direitos reservados.</p>
+</footer>
+
+<script>
+function toast(msg, dur=3000){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),dur); }
+
+function abrirContrato(){
+  document.getElementById('data-contrato').textContent = new Date().toLocaleString('pt-BR');
+  document.getElementById('modal-contrato').classList.add('open');
+  document.getElementById('check-contrato').checked = false;
+  document.getElementById('btn-aceitar').disabled = true;
+}
+
+function fecharContrato(){
+  document.getElementById('modal-contrato').classList.remove('open');
+}
+
+function aceitarContrato(){
+  if(!document.getElementById('check-contrato').checked) return;
+  fecharContrato();
+  document.getElementById('buy-body-initial').style.display='none';
+  document.getElementById('buy-body-pix').style.display='block';
+  document.getElementById('comprar').scrollIntoView({behavior:'smooth'});
+  toast('Contrato aceito! Faça o PIX abaixo. ✅', 4000);
+}
+
+function copiarPix(){
+  navigator.clipboard.writeText('37871182000186').then(()=>{
+    toast('Chave PIX copiada! ✅');
+  }).catch(()=>{
+    toast('Chave: 37871182000186');
+  });
+}
+
+function enviarWhats(){
+  const msg = encodeURIComponent('Olá! Acabei de fazer o PIX de R$ 97,00 para a Gráfica Lucel. Segue o comprovante em anexo. Aguardo liberação do acesso à plataforma de geração de livros. Obrigado!');
+  window.open('https://wa.me/5511934964127?text='+msg,'_blank');
+}
+
+function toggleFaq(el){
+  const a = el.querySelector('.faq-a');
+  const icon = el.querySelector('.faq-icon');
+  a.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+</script>
+</body>
+</html>
