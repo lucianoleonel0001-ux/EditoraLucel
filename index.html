@@ -107,11 +107,23 @@ textarea,input,select{font-family:'Inter',sans-serif}
 .ch-info .resumo{font-size:13px;color:var(--muted);line-height:1.7;max-width:680px}
 
 /* BANNER */
-.banner{background:rgba(124,58,237,.12);border:1px solid var(--border2);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--accent2)}
+.banner{background:rgba(124,58,237,.12);border:1px solid var(--border2);border-radius:16px;padding:28px 24px;margin-bottom:20px;text-align:center}
+.banner-title{font-size:18px;font-weight:700;color:var(--white);margin-bottom:6px}
+.banner-sub{font-size:14px;color:var(--accent);margin-bottom:20px}
+.banner-emoji{font-size:40px;margin-bottom:12px;display:block;animation:bounce 1s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .spin{display:inline-block;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.progress-wrap{background:rgba(124,58,237,.15);border-radius:4px;height:4px;margin-bottom:20px;overflow:hidden}
-.progress-bar{height:100%;background:linear-gradient(90deg,var(--purple),var(--accent));transition:width .4s;border-radius:4px}
+.progress-wrap{background:rgba(124,58,237,.15);border-radius:8px;height:16px;margin-bottom:12px;overflow:hidden;border:1px solid var(--border)}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--purple),var(--accent));transition:width .6s;border-radius:8px;position:relative}
+.progress-bar::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.progress-pct{font-size:13px;font-weight:600;color:var(--accent);text-align:right;margin-bottom:8px}
+.progress-eta{font-size:12px;color:var(--muted);text-align:center}
+.banner-steps{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.banner-step{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);background:rgba(124,58,237,.05)}
+.banner-step.done{background:rgba(45,170,100,.15);border-color:rgba(45,170,100,.3);color:#2daa64}
+.banner-step.current{background:rgba(124,58,237,.2);border-color:var(--border2);color:var(--accent);font-weight:600}
 
 /* CARDS CAPÍTULOS */
 .chapter-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
@@ -160,6 +172,7 @@ textarea,input,select{font-family:'Inter',sans-serif}
     <h3>Novo livro</h3>
     <div class="field"><label>Título do livro</label><input type="text" id="f-titulo" placeholder="Ex: O Último Horizonte"></div>
     <div class="field"><label>Subtítulo (opcional)</label><input type="text" id="f-subtitulo" placeholder="Ex: Uma jornada além do possível"></div>
+    <div class="field"><label>Nome do Autor</label><input type="text" id="f-autor" placeholder="Ex: João da Silva"></div>
     <div class="field"><label>Gênero</label>
       <select id="f-genero"><option value="">Selecione o gênero</option>
         <option>Romance</option><option>Ficção científica</option><option>Fantasia</option>
@@ -248,11 +261,15 @@ textarea,input,select{font-family:'Inter',sans-serif}
     </div>
 
     <div class="banner hidden" id="banner">
-      <span class="spin">⚙</span>
-      <span id="banner-msg">Aguarde...</span>
-    </div>
-    <div class="progress-wrap hidden" id="prog-wrap">
-      <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+      <span class="banner-emoji" id="banner-emoji">✍️</span>
+      <div class="banner-title" id="banner-title">Gerando seu livro...</div>
+      <div class="banner-sub" id="banner-msg">Aguarde...</div>
+      <div class="progress-pct" id="prog-pct">0%</div>
+      <div class="progress-wrap" id="prog-wrap">
+        <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+      </div>
+      <div class="progress-eta" id="prog-eta"></div>
+      <div class="banner-steps" id="banner-steps"></div>
     </div>
 
     <div class="chapter-cards" id="chapter-cards"></div>
@@ -286,7 +303,10 @@ function toast(msg, dur=3000){ const t=document.getElementById('toast'); t.textC
 function tela(id){ document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
 function mostrar(id){ document.getElementById(id).classList.remove('hidden'); }
 function esconder(id){ document.getElementById(id).classList.add('hidden'); }
-function prog(p){ document.getElementById('prog-bar').style.width=p+'%'; }
+function prog(p){ 
+  document.getElementById('prog-bar').style.width=p+'%'; 
+  document.getElementById('prog-pct').textContent=Math.round(p)+'%';
+}
 function erroLogin(msg){ const el=document.getElementById('err-login'); el.textContent=msg; el.style.display=msg?'block':'none'; }
 function erroCad(msg){ const el=document.getElementById('err-cadastro'); el.textContent=msg; el.style.display=msg?'block':'none'; }
 
@@ -433,17 +453,18 @@ function renderLivros(){
 
 function deletarLivro(e,i){ e.stopPropagation(); if(!confirm('Excluir este livro?'))return; livros.splice(i,1); salvar(); renderLivros(); toast('Livro excluído.'); }
 function abrirModal(){ document.getElementById('modal').classList.add('aberto'); }
-function fecharModal(){ document.getElementById('modal').classList.remove('aberto'); ['f-titulo','f-subtitulo','f-resumo'].forEach(id=>document.getElementById(id).value=''); document.getElementById('f-genero').value=''; }
+function fecharModal(){ document.getElementById('modal').classList.remove('aberto'); ['f-titulo','f-subtitulo','f-resumo','f-autor'].forEach(id=>document.getElementById(id).value=''); document.getElementById('f-genero').value=''; }
 
 async function criarLivro(){
   const titulo=document.getElementById('f-titulo').value.trim();
   const subtitulo=document.getElementById('f-subtitulo').value.trim();
+  const autor=document.getElementById('f-autor').value.trim() || (usuario&&usuario.nome) || 'Autor';
   const genero=document.getElementById('f-genero').value;
   const resumo=document.getElementById('f-resumo').value.trim();
   if(!titulo){ toast('Digite o título'); return; }
   if(!resumo){ toast('Escreva o resumo do livro'); return; }
   if(!verificarLimite()) return;
-  const livro={id:Date.now(),titulo,subtitulo,genero,resumo,capitulos:[]};
+  const livro={id:Date.now(),titulo,subtitulo,autor,genero,resumo,capitulos:[]};
   livros.push(livro); salvar();
   livroAtual=livros.length-1;
   fecharModal();
@@ -461,7 +482,7 @@ function carregarTela(){
   document.getElementById('exib-titulo').textContent=b.titulo;
   document.getElementById('exib-subtitulo').textContent=b.subtitulo||'';
   document.getElementById('exib-resumo').textContent=b.resumo||'';
-  esconder('banner'); esconder('prog-wrap'); esconder('aprovar-box'); esconder('export-box');
+  esconder('banner'); esconder('aprovar-box'); esconder('export-box');
   renderCapitulos();
   if(b.capitulos&&b.capitulos.length){
     const todosEscritos=b.capitulos.every(c=>c.texto&&c.texto.length>100);
@@ -485,8 +506,12 @@ function verificarLimite(){
 async function gerarEstrutura(){
   const b=livros[livroAtual];
   const crista = b.genero === 'Livro Cristão';
-  mostrar('banner'); mostrar('prog-wrap');
-  document.getElementById('banner-msg').textContent='A IA está criando a estrutura dos 12 capítulos...';
+  mostrar('banner');
+  document.getElementById('banner-title').textContent='Criando estrutura do livro...';
+  document.getElementById('banner-msg').textContent='A IA está planejando os 12 capítulos';
+  document.getElementById('banner-emoji').textContent='🧠';
+  document.getElementById('banner-steps').innerHTML='';
+  document.getElementById('prog-eta').textContent='Aguarde alguns segundos...';
   esconder('aprovar-box'); esconder('export-box');
   prog(20);
 
@@ -512,14 +537,16 @@ Retorne SOMENTE JSON puro, sem markdown, sem explicação:
     b.capitulos=(parsed.capitulos||[]).map(c=>({num:c.num,titulo:c.titulo,resumo:c.resumo,texto:''}));
     salvar(); prog(100);
     setTimeout(()=>{
-      esconder('banner'); esconder('prog-wrap');
+      esconder('banner');
       renderCapitulos();
       mostrar('aprovar-box');
       toast('12 capítulos criados! Revise e aprove para gerar o livro.');
     },500);
   }catch(e){
     if(e.message==='auth') return;
-    document.getElementById('banner-msg').textContent='Erro ao gerar estrutura. Tente novamente.';
+    document.getElementById('banner-title').textContent='Erro ao gerar estrutura';
+    document.getElementById('banner-msg').textContent='Tente novamente clicando em ↻ Refazer estrutura';
+    document.getElementById('banner-emoji').textContent='⚠️';
     setTimeout(()=>esconder('banner'),3000);
   }
 }
@@ -594,12 +621,34 @@ function toggleEditar(i){
 async function gerarLivro(){
   const b=livros[livroAtual];
   esconder('aprovar-box');
-  mostrar('banner'); mostrar('prog-wrap');
+  mostrar('banner');
   const total=b.capitulos.length;
+
+  // Montar indicadores de capítulos
+  const stepsEl = document.getElementById('banner-steps');
+  if(stepsEl){
+    stepsEl.innerHTML = b.capitulos.map((c,i)=>`<span class="banner-step" id="bstep-${i}">Cap. ${c.num}</span>`).join('');
+  }
+  document.getElementById('banner-title').textContent = 'Escrevendo seu livro completo...';
+  document.getElementById('banner-emoji').textContent = '✍️';
+  const startTime = Date.now();
 
   for(let i=0;i<total;i++){
     const ch=b.capitulos[i];
-    document.getElementById('banner-msg').textContent=`Escrevendo capítulo ${i+1} de ${total}: "${ch.titulo}"...`;
+    document.getElementById('banner-msg').textContent=`Escrevendo Capítulo ${i+1} de ${total}: "${ch.titulo}"`;
+    // Atualizar steps
+    document.querySelectorAll('.banner-step').forEach((el,idx)=>{
+      el.className='banner-step'+(idx<i?' done':idx===i?' current':'');
+    });
+    // Estimar tempo restante
+    if(i>0){
+      const elapsed = (Date.now()-startTime)/1000;
+      const perCap = elapsed/i;
+      const remaining = Math.round(perCap*(total-i));
+      document.getElementById('prog-eta').textContent=`⏱ Aproximadamente ${remaining} segundos restantes`;
+    } else {
+      document.getElementById('prog-eta').textContent='⏱ Calculando tempo estimado...';
+    }
     prog(Math.round((i/total)*100));
 
     const crista = b.genero === 'Livro Cristão';
@@ -631,7 +680,7 @@ Escreva o capítulo completo com NO MÍNIMO 2000 caracteres. Linguagem fluida, r
   }
 
   prog(100);
-  esconder('banner'); esconder('prog-wrap');
+  esconder('banner');
   renderCapitulos();
   mostrar('export-box');
   document.getElementById('export-box').scrollIntoView({behavior:'smooth'});
@@ -688,7 +737,7 @@ async function baixarDocx(){
           children:[
             new TextRun({ text:(b.titulo+(b.subtitulo?': '+b.subtitulo:'')).toUpperCase(), font:PALATINO, size:14, color:BLACK }),
             new TextRun({ text:'\t', font:PALATINO, size:14 }),
-            new TextRun({ text:(usuario&&usuario.nome)||'Autor', font:PALATINO, size:14, italics:true, color:BLACK }),
+            new TextRun({ text:b.autor||(usuario&&usuario.nome)||'Autor', font:PALATINO, size:14, italics:true, color:BLACK }),
           ],
           tabStops:[{ type:TabStopType.RIGHT, position:PW-ML-MR }],
           spacing:{ before:60 }
@@ -739,7 +788,7 @@ async function baixarDocx(){
     }));
     rosto.push(linhaBorda(80, 0));
     rosto.push(new Paragraph({
-      children:[new TextRun({ text:(usuario&&usuario.nome)||'Autor', font:BEBAS, size:44, color:BLACK })],
+      children:[new TextRun({ text:b.autor||(usuario&&usuario.nome)||'Autor', font:BEBAS, size:44, color:BLACK })],
       alignment:AlignmentType.CENTER, spacing:{ before:320, after:0 }
     }));
     if(b.genero){
