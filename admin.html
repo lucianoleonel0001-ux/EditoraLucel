@@ -113,9 +113,10 @@ select option{background:#1a190f}
     <h2>Usuários</h2>
     <div class="stats" id="stats"></div>
     <div class="table-wrap">
-      <div class="table-head">
+      <div class="table-head" style="grid-template-columns:2fr 2fr 1.2fr 1fr 1.5fr 1fr">
         <div>Nome</div>
         <div>E-mail</div>
+        <div>WhatsApp</div>
         <div>Status</div>
         <div>Expira em</div>
         <div>Ações</div>
@@ -174,9 +175,12 @@ function renderUsuarios(users){
     const expiraStr = u.expira_em ? new Date(u.expira_em).toLocaleDateString('pt-BR') : '—';
     const diasRestantes = u.expira_em ? Math.ceil((new Date(u.expira_em)-hoje)/(1000*60*60*24)) : null;
     const expiraDisplay = u.expira_em ? `${expiraStr}${diasRestantes>0?' ('+diasRestantes+'d)':''}` : '—';
-    return `<div class="user-row">
-      <div><div class="user-nome">${u.nome}</div><div style="font-size:11px;color:var(--muted)">#${u.id} · ${new Date(u.criado_em).toLocaleDateString('pt-BR')}</div></div>
+    const wNum = u.whatsapp ? u.whatsapp.replace(/\D/g,'') : '';
+    const wLink = wNum ? `<a href="https://wa.me/55${wNum}" target="_blank" style="color:#25d366;font-size:12px;font-weight:600">💬 ${u.whatsapp}</a>` : '<span style="color:var(--muted);font-size:12px">—</span>';
+    return `<div class="user-row" style="grid-template-columns:2fr 2fr 1.2fr 1fr 1.5fr 1fr">
+      <div><div class="user-nome">${u.nome}</div><div style="font-size:11px;color:var(--muted)">${new Date(u.criado_em).toLocaleDateString('pt-BR')}</div></div>
       <div class="user-email">${u.email}</div>
+      <div>${wLink}</div>
       <div><span class="status-badge status-${status}">${statusLabel}</span></div>
       <div class="expira-txt">${expiraDisplay}</div>
       <div class="acoes">
@@ -201,12 +205,14 @@ async function confirmarLiberar(){
   const d = await r.json();
   fecharModal();
   if(d.ok){
-    toast(`Acesso liberado! E-mail enviado para ${d.email} ✅`, 4000);
+    toast(`Acesso liberado! ✅`, 3000);
     carregarUsuarios();
-    // Abrir WhatsApp automaticamente
+    // Abrir WhatsApp do cliente diretamente
     setTimeout(()=>{
       const msg = encodeURIComponent(`Olá, ${d.nome}! 🎉\n\nSeu acesso à plataforma de geração de livros com IA foi liberado!\n\nAcesse agora: https://editoralucel.onrender.com\n\nEntre com o e-mail e senha que você cadastrou.\n\nQualquer dúvida é só chamar aqui! 📚\n\n— Gráfica Lucel`);
-      window.open(`https://wa.me/?text=${msg}`, '_blank');
+      const wNum = d.whatsapp ? d.whatsapp.replace(/\D/g,'') : '';
+      const url = wNum ? `https://wa.me/55${wNum}?text=${msg}` : `https://wa.me/?text=${msg}`;
+      window.open(url, '_blank');
     }, 500);
   }
   else toast('Erro ao liberar');

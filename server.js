@@ -29,10 +29,10 @@ function lerDB() {
 function salvarDB(data) { fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2)); }
 function buscarUsuario(email) { return lerDB().usuarios.find(u => u.email === email.toLowerCase()) || null; }
 function buscarUsuarioPorId(id) { return lerDB().usuarios.find(u => u.id === id) || null; }
-function criarUsuario(nome, email, hash) {
+function criarUsuario(nome, email, hash, whatsapp='') {
   const db = lerDB();
   const id = Date.now();
-  const novo = { id, nome, email: email.toLowerCase(), senha_hash: hash, ativo: false, expira_em: null, criado_em: new Date().toISOString() };
+  const novo = { id, nome, email: email.toLowerCase(), senha_hash: hash, whatsapp, ativo: false, expira_em: null, criado_em: new Date().toISOString() };
   db.usuarios.push(novo);
   salvarDB(db);
   return novo;
@@ -112,7 +112,7 @@ app.post('/api/cadastrar', async (req, res) => {
   try {
     if (buscarUsuario(email)) return res.status(400).json({ erro: 'E-mail ja cadastrado' });
     const hash = await bcrypt.hash(senha, 10);
-    criarUsuario(nome, email, hash);
+    criarUsuario(nome, email, hash, req.body.whatsapp || '');
     res.json({ ok: true });
   } catch { res.status(500).json({ erro: 'Erro ao criar conta' }); }
 });
@@ -176,7 +176,7 @@ app.post('/api/admin/liberar/:id', adminAuth, async (req, res) => {
   const expiraStr = expira.toISOString().slice(0, 10);
   const user = atualizarUsuario(id, { ativo: true, expira_em: expiraStr });
   if (user) await enviarEmail(user.email, user.nome, expiraStr);
-  res.json({ ok: true, expira_em: expiraStr, email: user?.email, nome: user?.nome });
+  res.json({ ok: true, expira_em: expiraStr, email: user?.email, nome: user?.nome, whatsapp: user?.whatsapp || '' });
 });
 
 app.post('/api/admin/revogar/:id', adminAuth, (req, res) => {

@@ -265,9 +265,13 @@ footer strong{color:var(--white)}
         <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase">E-mail</label>
         <input type="email" id="cad-email" placeholder="seu@email.com" style="width:100%;background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;outline:none">
       </div>
-      <div style="margin-bottom:20px">
+      <div style="margin-bottom:14px">
         <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase">Senha</label>
         <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" style="width:100%;background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;outline:none">
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase">WhatsApp</label>
+        <input type="tel" id="cad-whatsapp" placeholder="(11) 99999-9999" style="width:100%;background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;outline:none">
       </div>
       <button class="btn-cta" style="width:100%;justify-content:center;font-size:15px;padding:15px" onclick="cadastrar()" id="btn-cad">
         Cadastrar e ir para o pagamento →
@@ -361,6 +365,7 @@ async function cadastrar(){
   const nome = document.getElementById('cad-nome').value.trim();
   const email = document.getElementById('cad-email').value.trim();
   const senha = document.getElementById('cad-senha').value;
+  const whatsapp = document.getElementById('cad-whatsapp').value.trim();
   const errEl = document.getElementById('err-cad');
   
   if(!nome || !email || !senha){ errEl.textContent='Preencha todos os campos'; errEl.style.display='block'; return; }
@@ -374,7 +379,7 @@ async function cadastrar(){
     const r = await fetch('/api/cadastrar', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({nome, email, senha})
+      body: JSON.stringify({nome, email, senha, whatsapp})
     });
     const d = await r.json();
     if(!r.ok){ errEl.textContent = d.erro || 'Erro ao criar conta'; errEl.style.display='block'; btn.disabled=false; btn.textContent='Cadastrar e ir para o pagamento →'; return; }
