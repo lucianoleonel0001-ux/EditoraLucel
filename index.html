@@ -679,10 +679,10 @@ IMPORTANTE: Este é um livro cristão. Em cada capítulo:
 - Use linguagem edificante, esperançosa e baseada nas escrituras
 - Termine o capítulo com uma reflexão ou oração curta`:''}
 
-Escreva o capítulo completo com NO MÍNIMO 2500 caracteres. Use parágrafos bem desenvolvidos com detalhes, diálogos e emoção. Retorne APENAS o texto do capítulo, sem título.`;
+Escreva o capítulo completo com NO MÍNIMO 4500 caracteres. Use parágrafos longos e bem desenvolvidos com detalhes, diálogos e emoção. Desenvolva cada cena com profundidade. Retorne APENAS o texto do capítulo, sem título.`;
 
     try{
-      const data = await chamarClaude({ model:'claude-sonnet-4-5', max_tokens:2500, messages:[{role:'user',content:prompt}] });
+      const data = await chamarClaude({ model:'claude-sonnet-4-5', max_tokens:5000, messages:[{role:'user',content:prompt}] });
       ch.texto=data.content?.[0]?.text||'';
       salvar();
       const badge=document.getElementById('badge-'+i);
