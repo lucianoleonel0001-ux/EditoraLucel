@@ -291,14 +291,28 @@ textarea,input,select{font-family:'Inter',sans-serif}
 
 <script>
 // ─── ESTADO ───────────────────────────────────────────────────────
-const DB_KEY = 'gl_v4';
-let livros = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+let livros = [];
 let token = localStorage.getItem('gl_token') || null;
 let usuario = JSON.parse(localStorage.getItem('gl_usuario') || 'null');
 let livroAtual = null;
 
 // ─── UTILITÁRIOS ──────────────────────────────────────────────────
-function salvar(){ localStorage.setItem(DB_KEY, JSON.stringify(livros)); }
+async function salvar(){
+  try {
+    await fetch('/api/livros', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({livros})
+    });
+  } catch(e){ console.error('Erro ao salvar:', e); }
+}
+
+async function carregarLivros(){
+  try {
+    const r = await fetch('/api/livros', { headers:{'Authorization':'Bearer '+token} });
+    if(r.ok){ livros = await r.json(); }
+  } catch(e){ livros = []; }
+}
 function toast(msg, dur=3000){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), dur); }
 function tela(id){ document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
 function mostrar(id){ document.getElementById(id).classList.remove('hidden'); }
@@ -330,7 +344,7 @@ async function init(){
   tela('t-login');
 }
 
-function entrarNoApp(){
+async function entrarNoApp(){
   document.getElementById('nav-nome').textContent = usuario.nome;
   if(usuario.expira_em){
     const d = new Date(usuario.expira_em);
@@ -338,6 +352,7 @@ function entrarNoApp(){
     const dias = Math.ceil((d - hoje) / (1000*60*60*24));
     document.getElementById('nav-expira').textContent = `Acesso válido até ${d.toLocaleDateString('pt-BR')} (${dias} dias restantes)`;
   }
+  await carregarLivros();
   tela('t-painel');
   renderLivros();
 }
@@ -465,7 +480,7 @@ async function criarLivro(){
   if(!resumo){ toast('Escreva o resumo do livro'); return; }
   if(!verificarLimite()) return;
   const livro={id:Date.now(),titulo,subtitulo,autor,genero,resumo,capitulos:[]};
-  livros.push(livro); salvar();
+  livros.push(livro); await salvar();
   livroAtual=livros.length-1;
   fecharModal();
   tela('t-capitulos');
@@ -664,7 +679,7 @@ IMPORTANTE: Este é um livro cristão. Em cada capítulo:
 - Use linguagem edificante, esperançosa e baseada nas escrituras
 - Termine o capítulo com uma reflexão ou oração curta`:''}
 
-Escreva o capítulo completo com NO MÍNIMO 2000 caracteres. Linguagem fluida, rica em detalhes e emoção. Retorne APENAS o texto do capítulo.`;
+Escreva o capítulo completo com NO MÍNIMO 2500 caracteres. Use parágrafos bem desenvolvidos com detalhes, diálogos e emoção. Retorne APENAS o texto do capítulo, sem título.`;
 
     try{
       const data = await chamarClaude({ model:'claude-sonnet-4-5', max_tokens:2500, messages:[{role:'user',content:prompt}] });
