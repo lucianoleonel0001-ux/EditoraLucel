@@ -3,39 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Escreva seu Livro — Gráfica Lucel</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Gráfica Lucel — Gerador de Livros com IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a0a08;--bg2:#111109;--gold:#d4a017;--gold2:#f0c040;--white:#f5f0e8;--muted:rgba(245,240,232,0.55);--card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.09);--radius:14px;--danger:#e24b4a}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
-h1,h2,h3{font-family:'Playfair Display',serif;line-height:1.2}
-button{cursor:pointer;font-family:'DM Sans',sans-serif}
-textarea,input,select{font-family:'DM Sans',sans-serif}
+:root{
+  --bg:#0f0d1a;--bg2:#16132a;--bg3:#1e1a2e;
+  --purple:#7c3aed;--purple2:#9f67ff;--purple3:#4f46e5;
+  --accent:#a78bfa;--accent2:#c4b5fd;
+  --white:#f0eeff;--muted:rgba(200,190,255,0.5);
+  --card:rgba(124,58,237,0.07);--border:rgba(124,58,237,0.2);
+  --border2:rgba(124,58,237,0.4);--radius:14px;--danger:#e24b4a;--green:#2daa64
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+button{cursor:pointer;font-family:'Inter',sans-serif}
+textarea,input,select{font-family:'Inter',sans-serif}
 .hidden{display:none!important}
 
 /* NAVBAR */
-.navbar{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:rgba(10,10,8,.97);position:sticky;top:0;z-index:50}
-.navbar-logo{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold)}
-.btn-outline{background:none;border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);transition:all .15s}
-.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-.btn-gold{background:var(--gold);color:#0a0a08;border:none;border-radius:30px;padding:11px 28px;font-size:15px;font-weight:700;transition:background .15s;display:inline-block}
-.btn-gold:hover{background:var(--gold2)}
-.btn-gold:disabled{opacity:.5;cursor:not-allowed}
-.btn-ghost{background:none;border:1px solid var(--border);border-radius:30px;padding:10px 20px;font-size:14px;color:var(--muted);transition:all .15s}
-.btn-ghost:hover{border-color:var(--muted)}
+.navbar{padding:14px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:rgba(15,13,26,.97);position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
+.navbar-logo{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:.02em}
+.navbar-logo span{color:var(--purple2)}
+.btn-outline{background:none;border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--muted);transition:all .15s;font-weight:500}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-purple{background:linear-gradient(135deg,var(--purple),var(--purple3));color:#fff;border:none;border-radius:30px;padding:11px 28px;font-size:14px;font-weight:600;transition:opacity .15s;display:inline-block;letter-spacing:.01em}
+.btn-purple:hover{opacity:.9}
+.btn-purple:disabled{opacity:.4;cursor:not-allowed}
 
 /* FIELD */
 .field{margin-bottom:16px}
-.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.09em;text-transform:uppercase}
-.field input,.field textarea,.field select{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--white);font-size:14px;line-height:1.6}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase}
+.field input,.field textarea,.field select{width:100%;background:rgba(124,58,237,0.08);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--white);font-size:14px;line-height:1.6;transition:border-color .15s}
 .field textarea{resize:vertical}
-.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:rgba(212,160,23,.5)}
-.field select option{background:#1a190f}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--purple2);background:rgba(124,58,237,0.12)}
+.field select option{background:#1e1a2e}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a190f;border:1px solid var(--gold);border-radius:30px;padding:10px 22px;font-size:13px;color:var(--gold);z-index:9999;transition:transform .3s;pointer-events:none}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e1a2e;border:1px solid var(--purple);border-radius:30px;padding:10px 22px;font-size:13px;color:var(--accent);z-index:9999;transition:transform .3s;pointer-events:none;font-weight:500}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
 /* TELAS */
@@ -43,89 +48,106 @@ textarea,input,select{font-family:'DM Sans',sans-serif}
 .tela.ativa{display:flex}
 
 /* LOGIN */
-#t-login{align-items:center;justify-content:center;padding:40px 24px}
-.login-box{width:100%;max-width:400px}
-.login-logo{font-family:'Playfair Display',serif;font-size:28px;color:var(--gold);text-align:center;margin-bottom:6px}
-.login-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:36px}
+#t-login{align-items:center;justify-content:center;padding:40px 24px;background:radial-gradient(ellipse at 50% 0%,rgba(124,58,237,.15) 0%,transparent 70%)}
+.login-box{width:100%;max-width:420px}
+.login-logo{font-size:32px;font-weight:700;color:var(--white);text-align:center;margin-bottom:4px;letter-spacing:-.01em}
+.login-logo span{color:var(--accent)}
+.login-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:32px}
+.login-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(124,58,237,.35),rgba(79,70,229,.35));border:1px solid rgba(167,139,250,.5);border-radius:30px;padding:10px 22px;font-size:15px;font-weight:600;color:#fff;margin-bottom:28px;width:100%;justify-content:center;animation:pulse-badge 2.5s ease-in-out infinite;box-shadow:0 0 24px rgba(124,58,237,.35),inset 0 1px 0 rgba(255,255,255,.1);letter-spacing:.01em}
+@keyframes pulse-badge{0%,100%{box-shadow:0 0 24px rgba(124,58,237,.35),inset 0 1px 0 rgba(255,255,255,.1);border-color:rgba(167,139,250,.5)}50%{box-shadow:0 0 40px rgba(124,58,237,.6),inset 0 1px 0 rgba(255,255,255,.15);border-color:rgba(196,181,253,.8)}}
 .login-toggle{text-align:center;margin-top:18px;font-size:13px;color:var(--muted)}
-.login-toggle span{color:var(--gold);cursor:pointer;font-weight:600}
-.login-expira{text-align:center;margin-top:14px;font-size:12px;color:var(--muted);padding:8px 16px;background:rgba(212,160,23,.08);border-radius:8px;border:1px solid rgba(212,160,23,.2)}
-.erro-msg{background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#e24b4a;margin-bottom:14px;display:none}
+.login-toggle span{color:var(--accent);cursor:pointer;font-weight:600}
+.erro-msg{background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.3);border-radius:10px;padding:10px 14px;font-size:13px;color:#e24b4a;margin-bottom:14px;display:none}
 
 /* PAINEL */
-.page-body{flex:1;padding:32px 24px;max-width:900px;width:100%;margin:0 auto}
-.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
-.book-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 18px;cursor:pointer;transition:border-color .2s,transform .2s;position:relative}
-.book-card:hover{border-color:rgba(212,160,23,.4);transform:translateY(-2px)}
-.book-spine{width:38px;height:50px;border-radius:6px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:20px}
-.book-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:2px}
-.book-subtitle{font-size:12px;color:var(--gold);margin-bottom:6px;font-style:italic}
-.book-genre{font-size:12px;color:var(--muted)}
-.book-meta{font-size:11px;color:var(--muted);margin-top:10px;display:flex;gap:10px}
-.book-del{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--muted);font-size:16px;opacity:0;transition:opacity .2s;padding:2px 6px}
+.page-body{flex:1;padding:32px 28px;max-width:960px;width:100%;margin:0 auto}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.page-header h2{font-size:24px;font-weight:700;color:var(--white)}
+.page-header-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.counter-bar{background:rgba(124,58,237,.1);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between}
+.counter-label{font-size:13px;color:var(--muted)}
+.counter-nums{font-size:13px;font-weight:600;color:var(--accent)}
+.counter-track{flex:1;margin:0 16px;height:4px;background:rgba(124,58,237,.2);border-radius:2px;overflow:hidden}
+.counter-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--accent));border-radius:2px;transition:width .4s}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.book-card{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:22px 20px;cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.book-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--purple),var(--purple3));opacity:0;transition:opacity .2s}
+.book-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 32px rgba(124,58,237,.15)}
+.book-card:hover::before{opacity:1}
+.book-icon{width:44px;height:44px;border-radius:10px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:22px;background:rgba(124,58,237,.15);border:1px solid var(--border)}
+.book-title{font-size:16px;font-weight:600;margin-bottom:3px;color:var(--white)}
+.book-subtitle{font-size:12px;color:var(--accent);margin-bottom:6px;font-style:italic}
+.book-genre{font-size:11px;color:var(--muted);background:rgba(124,58,237,.12);border:1px solid var(--border);padding:2px 8px;border-radius:20px;display:inline-block}
+.book-meta{font-size:11px;color:var(--muted);margin-top:12px;display:flex;gap:10px;align-items:center}
+.book-del{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:16px;opacity:0;transition:opacity .2s;padding:2px 6px;border-radius:6px}
 .book-card:hover .book-del{opacity:1}
-.book-del:hover{color:var(--danger)}
+.book-del:hover{color:var(--danger);background:rgba(226,75,74,.1)}
+.book-new{background:rgba(124,58,237,.05);border:1px dashed var(--border);border-radius:16px;padding:22px 20px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:8px}
+.book-new:hover{border-color:var(--purple);background:rgba(124,58,237,.1)}
+.book-new-icon{width:44px;height:44px;border-radius:10px;background:rgba(124,58,237,.15);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--accent)}
+.book-new-label{font-size:14px;font-weight:600;color:var(--accent)}
+.book-new-sub{font-size:12px;color:var(--muted)}
 .empty-state{text-align:center;padding:70px 20px;color:var(--muted);grid-column:1/-1}
 
 /* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:20px;overflow-y:auto;backdrop-filter:blur(6px)}
 .modal-bg.aberto{display:flex}
-.modal{background:#16150c;border:1px solid var(--border);border-radius:20px;padding:32px 28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
-.modal h3{font-size:22px;margin-bottom:22px}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px 28px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:20px;font-weight:700;margin-bottom:22px;color:var(--white)}
 .modal-footer{display:flex;gap:10px;margin-top:24px}
-.btn-cancel{flex:1;background:none;border:1px solid var(--border);border-radius:30px;padding:11px;color:var(--muted);font-size:14px}
-.btn-confirm{flex:2;background:var(--gold);color:#0a0a08;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:700}
-.btn-confirm:hover{background:var(--gold2)}
+.btn-cancel{flex:1;background:none;border:1px solid var(--border);border-radius:30px;padding:11px;color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-cancel:hover{border-color:var(--muted);color:var(--white)}
+.btn-confirm{flex:2;background:linear-gradient(135deg,var(--purple),var(--purple3));color:#fff;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn-confirm:hover{opacity:.9}
 
 /* TELA CAPÍTULOS */
-.ch-info{margin-bottom:24px}
-.ch-info h2{font-size:26px;margin-bottom:4px}
-.ch-info .sub{font-size:14px;color:var(--gold);font-style:italic;margin-bottom:8px}
-.ch-info .resumo{font-size:13px;color:var(--muted);line-height:1.65;max-width:680px}
+.ch-info{margin-bottom:28px;padding:24px;background:var(--bg3);border:1px solid var(--border);border-radius:16px}
+.ch-info h2{font-size:24px;font-weight:700;margin-bottom:4px;color:var(--white)}
+.ch-info .sub{font-size:14px;color:var(--accent);font-style:italic;margin-bottom:8px}
+.ch-info .resumo{font-size:13px;color:var(--muted);line-height:1.7;max-width:680px}
 
-/* BANNER GERANDO */
-.banner{background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:14px}
+/* BANNER */
+.banner{background:rgba(124,58,237,.12);border:1px solid var(--border2);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--accent2)}
 .spin{display:inline-block;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.progress-wrap{background:rgba(255,255,255,.07);border-radius:4px;height:6px;margin-bottom:20px;overflow:hidden}
-.progress-bar{height:100%;background:var(--gold);transition:width .4s;border-radius:4px}
+.progress-wrap{background:rgba(124,58,237,.15);border-radius:4px;height:4px;margin-bottom:20px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--purple),var(--accent));transition:width .4s;border-radius:4px}
 
 /* CARDS CAPÍTULOS */
-.chapter-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
-.ch-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.chapter-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.ch-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .15s}
+.ch-card:hover{border-color:var(--border2)}
 .ch-card-head{padding:16px 18px;display:flex;align-items:center;gap:12px;cursor:pointer}
-.ch-num{width:32px;height:32px;border-radius:8px;background:rgba(212,160,23,.15);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--gold);flex-shrink:0}
-.ch-card-title{font-size:15px;font-weight:600;flex:1}
-.badge{font-size:11px;padding:3px 10px;border-radius:12px;flex-shrink:0}
+.ch-num{width:32px;height:32px;border-radius:8px;background:rgba(124,58,237,.2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0}
+.ch-card-title{font-size:14px;font-weight:600;flex:1;color:var(--white)}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;flex-shrink:0;font-weight:500}
 .badge.pendente{background:rgba(255,255,255,.06);color:var(--muted)}
-.badge.escrito{background:rgba(45,170,100,.15);color:#2daa64}
-.badge.editando{background:rgba(212,160,23,.15);color:var(--gold)}
-.ch-chevron{color:var(--muted);font-size:14px;transition:transform .2s}
+.badge.escrito{background:rgba(45,170,100,.15);color:#2daa64;border:1px solid rgba(45,170,100,.3)}
+.ch-chevron{color:var(--muted);font-size:12px;transition:transform .2s}
 .ch-card-body{display:none;padding:16px 18px;border-top:1px solid var(--border)}
 .ch-card-body.aberto{display:block}
-.ch-resumo-box{font-size:13px;color:var(--muted);line-height:1.65;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid rgba(212,160,23,.3);margin-bottom:12px}
+.ch-resumo-box{font-size:13px;color:var(--muted);line-height:1.7;padding:12px 14px;background:rgba(124,58,237,.06);border-radius:8px;border-left:2px solid var(--purple);margin-bottom:12px}
 .ch-edit-area{display:none;flex-direction:column;gap:8px;margin-bottom:12px}
-.ch-edit-area input,.ch-edit-area textarea{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--white);font-size:13px;width:100%}
+.ch-edit-area input,.ch-edit-area textarea{background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--white);font-size:13px;width:100%}
 .ch-edit-area textarea{min-height:70px;resize:vertical;line-height:1.6}
-.ch-edit-area input:focus,.ch-edit-area textarea:focus{outline:none;border-color:rgba(212,160,23,.4)}
+.ch-edit-area input:focus,.ch-edit-area textarea:focus{outline:none;border-color:var(--purple2)}
 .ch-btn-row{display:flex;gap:8px;flex-wrap:wrap}
-.ch-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);transition:all .15s}
-.ch-btn:hover{border-color:var(--gold);color:var(--gold)}
-.ch-texto-preview{margin-top:12px;font-size:13px;line-height:1.8;color:var(--white);white-space:pre-wrap;max-height:260px;overflow-y:auto;padding:14px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border)}
+.ch-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);transition:all .15s;font-weight:500}
+.ch-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ch-texto-preview{margin-top:12px;font-size:13px;line-height:1.8;color:var(--white);white-space:pre-wrap;max-height:260px;overflow-y:auto;padding:14px;background:rgba(124,58,237,.05);border-radius:8px;border:1px solid var(--border)}
 
-/* BOTÃO APROVAR */
-.aprovar-box{background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.3);border-radius:16px;padding:28px;text-align:center;margin-bottom:28px}
+/* APROVAR */
+.aprovar-box{background:rgba(124,58,237,.08);border:1px solid var(--border2);border-radius:16px;padding:28px;text-align:center;margin-bottom:28px}
 .aprovar-box p{font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.6}
 
 /* EXPORTAR */
-.export-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:40px}
-.export-box h4{font-size:15px;font-weight:600;margin-bottom:16px}
+.export-box{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:40px}
+.export-box h4{font-size:15px;font-weight:600;margin-bottom:16px;color:var(--white)}
 .export-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
-.exp-btn{background:none;border:1px solid var(--border);border-radius:10px;padding:16px 12px;text-align:center;color:var(--white);font-size:13px;cursor:pointer;transition:all .2s}
-.exp-btn:hover{border-color:rgba(212,160,23,.4)}
+.exp-btn{background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:10px;padding:16px 12px;text-align:center;color:var(--white);font-size:13px;cursor:pointer;transition:all .2s;font-weight:500}
+.exp-btn:hover{border-color:var(--border2);background:rgba(124,58,237,.15)}
 .exp-btn span{display:block;font-size:22px;margin-bottom:6px}
-.exp-btn.lucel{border-color:rgba(212,160,23,.4);background:rgba(212,160,23,.07);color:var(--gold);font-weight:600}
+.exp-btn.lucel{border-color:var(--border2);background:rgba(124,58,237,.15);color:var(--accent);font-weight:600}
 </style>
 </head>
 <body>
@@ -142,7 +164,8 @@ textarea,input,select{font-family:'DM Sans',sans-serif}
       <select id="f-genero"><option value="">Selecione o gênero</option>
         <option>Romance</option><option>Ficção científica</option><option>Fantasia</option>
         <option>Terror</option><option>Suspense / Thriller</option><option>Autoajuda</option>
-        <option>Biografia</option><option>Infantil</option><option>Poesia</option><option>Outro</option>
+        <option>Biografia</option><option>Infantil</option><option>Poesia</option>
+        <option>Livro Cristão</option><option>Outro</option>
       </select>
     </div>
     <div class="field"><label>Resumo / ideia do livro</label>
@@ -159,14 +182,15 @@ textarea,input,select{font-family:'DM Sans',sans-serif}
 <div class="tela ativa" id="t-login">
   <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px">
   <div class="login-box">
-    <div class="login-logo">✦ Escreva seu Livro</div>
-    <div class="login-sub">Powered by Gráfica Lucel</div>
+    <div class="login-logo">✦ <span>Gráfica</span> Lucel</div>
+    <div class="login-sub">Gerador de Livros com IA</div>
+    <div class="login-badge"><span style="font-size:18px">✨</span> Gere até 10 livros profissionais com IA</div>
 
     <div id="f-login">
       <div class="erro-msg" id="err-login"></div>
       <div class="field"><label>E-mail</label><input type="email" id="l-email" placeholder="seu@email.com"></div>
       <div class="field"><label>Senha</label><input type="password" id="l-senha" placeholder="••••••••"></div>
-      <button class="btn-gold" style="width:100%" onclick="entrar()" id="btn-entrar">Entrar →</button>
+      <button class="btn-purple" style="width:100%" onclick="entrar()" id="btn-entrar">Entrar →</button>
       <div class="login-toggle">Não tem conta? <span onclick="alternarForm()">Cadastre-se</span></div>
     </div>
 
@@ -175,7 +199,7 @@ textarea,input,select{font-family:'DM Sans',sans-serif}
       <div class="field"><label>Nome</label><input type="text" id="c-nome" placeholder="Seu nome"></div>
       <div class="field"><label>E-mail</label><input type="email" id="c-email" placeholder="seu@email.com"></div>
       <div class="field"><label>Senha</label><input type="password" id="c-senha" placeholder="Mínimo 6 caracteres"></div>
-      <button class="btn-gold" style="width:100%" onclick="cadastrar()" id="btn-cadastrar">Criar conta →</button>
+      <button class="btn-purple" style="width:100%" onclick="cadastrar()" id="btn-cadastrar">Criar conta →</button>
       <div class="login-toggle">Já tem conta? <span onclick="alternarForm()">Entrar</span></div>
     </div>
   </div>
@@ -185,7 +209,7 @@ textarea,input,select{font-family:'DM Sans',sans-serif}
 <!-- TELA PAINEL -->
 <div class="tela" id="t-painel">
   <nav class="navbar">
-    <span class="navbar-logo">✦ Escreva seu Livro</span>
+    <span class="navbar-logo">✦ <span>Gráfica</span> Lucel</span>
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:13px;color:var(--muted)" id="nav-nome"></span>
       <button class="btn-outline" onclick="sair()">Sair</button>
@@ -194,10 +218,14 @@ textarea,input,select{font-family:'DM Sans',sans-serif}
   <div class="page-body">
     <div class="page-header">
       <div>
-        <h2>Meus Livros</h2>
-        <div id="nav-expira" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+        <div class="page-header-sub" id="nav-expira"></div>
       </div>
-      <button class="btn-gold" style="padding:10px 22px;font-size:14px" onclick="abrirModal()">+ Novo livro</button>
+      <button class="btn-purple" style="padding:10px 22px;font-size:14px" onclick="abrirModal()">+ Novo livro</button>
+    </div>
+    <div class="counter-bar" id="counter-bar" style="display:none">
+      <span class="counter-label">Livros gerados</span>
+      <div class="counter-track"><div class="counter-fill" id="counter-fill" style="width:0%"></div></div>
+      <span class="counter-nums" id="counter-nums">0 / 10</span>
     </div>
     <div class="books-grid" id="books-grid"></div>
   </div>
@@ -210,7 +238,7 @@ textarea,input,select{font-family:'DM Sans',sans-serif}
       <button class="btn-outline" onclick="voltarPainel()">← Painel</button>
       <span class="navbar-logo" id="nav-titulo-livro" style="font-size:16px"></span>
     </div>
-    <button class="btn-outline" style="color:var(--gold);border-color:rgba(212,160,23,.4)" onclick="regerarEstrutura()">↻ Refazer estrutura</button>
+    <button class="btn-outline" style="color:var(--accent);border-color:var(--border2)" onclick="regerarEstrutura()">↻ Refazer estrutura</button>
   </nav>
   <div class="page-body">
     <div class="ch-info">
@@ -231,7 +259,7 @@ textarea,input,select{font-family:'DM Sans',sans-serif}
 
     <div class="aprovar-box hidden" id="aprovar-box">
       <p>Revise os capítulos acima e edite o que quiser.<br>Quando estiver satisfeito, clique para a IA escrever o livro completo.</p>
-      <button class="btn-gold" style="padding:14px 40px;font-size:16px" onclick="gerarLivro()">✨ Aprovar estrutura e gerar livro completo</button>
+      <button class="btn-purple" style="padding:14px 40px;font-size:16px" onclick="gerarLivro()">✨ Aprovar estrutura e gerar livro completo</button>
     </div>
 
     <div class="export-box hidden" id="export-box">
@@ -373,16 +401,31 @@ const CORES=['#d4a017','#e94560','#4a90d9','#2ea87e','#9b59b6','#e67e22'];
 
 function renderLivros(){
   const g=document.getElementById('books-grid'); g.innerHTML='';
-  if(!livros.length){ g.innerHTML='<div class="empty-state"><div style="font-size:52px;margin-bottom:16px">📚</div><p>Nenhum livro ainda.<br>Clique em <strong>Novo livro</strong> para começar.</p></div>'; return; }
+  // Atualizar contador
+  const usados = livrosGerados();
+  const restantes = LIMITE_LIVROS - usados;
+  const pct = Math.round((usados/LIMITE_LIVROS)*100);
+  const cb = document.getElementById('counter-bar');
+  if(cb){ cb.style.display='flex'; }
+  const cf = document.getElementById('counter-fill');
+  if(cf) cf.style.width = pct+'%';
+  const cn = document.getElementById('counter-nums');
+  if(cn) cn.textContent = usados+' / '+LIMITE_LIVROS;
+  if(!livros.length){ g.innerHTML='<div class="empty-state"><div style="font-size:52px;margin-bottom:16px">📚</div><p style="color:var(--muted)">Nenhum livro ainda.<br>Clique em <strong style="color:var(--accent)">Novo livro</strong> para começar.</p></div>'; return; }
   livros.forEach((b,i)=>{
     const chs=(b.capitulos||[]).length;
     const escritos=(b.capitulos||[]).filter(c=>c.texto).length;
+    const completo = escritos === chs && chs > 0;
     const d=document.createElement('div'); d.className='book-card';
-    d.innerHTML=`<div class="book-spine" style="background:${CORES[i%CORES.length]}22;border:1px solid ${CORES[i%CORES.length]}44">${EMOJIS[i%EMOJIS.length]}</div>
+    d.innerHTML=`<div class="book-icon">${EMOJIS[i%EMOJIS.length]}</div>
       <div class="book-title">${b.titulo}</div>
       ${b.subtitulo?`<div class="book-subtitle">${b.subtitulo}</div>`:''}
-      <div class="book-genre">${b.genero||'Sem gênero'}</div>
-      <div class="book-meta"><span>${chs} capítulo${chs!==1?'s':''}</span>${escritos?`<span style="color:#2daa64">✓ ${escritos} escrito${escritos!==1?'s':''}</span>`:''}</div>
+      <div style="margin-top:8px"><span class="book-genre">${b.genero||'Sem gênero'}</span></div>
+      <div class="book-meta">
+        <span>${chs} cap.</span>
+        ${completo?'<span style="color:#2daa64;background:rgba(45,170,100,.12);padding:2px 8px;border-radius:20px;border:1px solid rgba(45,170,100,.2)">✓ Completo</span>':''}
+        ${!completo&&escritos?`<span style="color:var(--accent)">${escritos} escrito${escritos!==1?'s':''}</span>`:''}
+      </div>
       <button class="book-del" onclick="deletarLivro(event,${i})">✕</button>`;
     d.onclick=()=>abrirLivro(i); g.appendChild(d);
   });
@@ -399,6 +442,7 @@ async function criarLivro(){
   const resumo=document.getElementById('f-resumo').value.trim();
   if(!titulo){ toast('Digite o título'); return; }
   if(!resumo){ toast('Escreva o resumo do livro'); return; }
+  if(!verificarLimite()) return;
   const livro={id:Date.now(),titulo,subtitulo,genero,resumo,capitulos:[]};
   livros.push(livro); salvar();
   livroAtual=livros.length-1;
@@ -425,20 +469,35 @@ function carregarTela(){
   }
 }
 
+// ─── LIMITE DE LIVROS ────────────────────────────────────────────
+const LIMITE_LIVROS = 10;
+function livrosGerados(){ return livros.filter(l=>(l.capitulos||[]).some(c=>c.texto&&c.texto.length>100)).length; }
+function verificarLimite(){
+  const usados = livrosGerados();
+  if(usados >= LIMITE_LIVROS){
+    toast(`Você atingiu o limite de ${LIMITE_LIVROS} livros. Renove seu acesso para continuar.`, 5000);
+    return false;
+  }
+  return true;
+}
+
 // ─── GERAR ESTRUTURA ──────────────────────────────────────────────
 async function gerarEstrutura(){
   const b=livros[livroAtual];
+  const crista = b.genero === 'Livro Cristão';
   mostrar('banner'); mostrar('prog-wrap');
   document.getElementById('banner-msg').textContent='A IA está criando a estrutura dos 12 capítulos...';
   esconder('aprovar-box'); esconder('export-box');
   prog(20);
 
-  const prompt=`Você é um escritor profissional. Crie a estrutura de um livro com EXATAMENTE 12 capítulos.
+  const prompt=`Você é um escritor profissional${crista?' cristão especializado em literatura bíblica':''}.
+Crie a estrutura de um livro com EXATAMENTE 12 capítulos.
 
 Título: "${b.titulo}"
 ${b.subtitulo?`Subtítulo: "${b.subtitulo}"`:''}
 Gênero: ${b.genero||'ficção'}
 Ideia do autor: "${b.resumo}"
+${crista?'Cada capítulo deve ter tema bíblico e incluir referência a versículos relevantes no resumo.':''}
 
 Retorne SOMENTE JSON puro, sem markdown, sem explicação:
 {"capitulos":[{"num":1,"titulo":"Título","resumo":"Resumo de 2-3 frases do capítulo"},{"num":2,...}]}`;
@@ -543,11 +602,18 @@ async function gerarLivro(){
     document.getElementById('banner-msg').textContent=`Escrevendo capítulo ${i+1} de ${total}: "${ch.titulo}"...`;
     prog(Math.round((i/total)*100));
 
-    const prompt=`Você é um escritor profissional de ${b.genero||'ficção'}. Escreva o capítulo ${ch.num} do livro "${b.titulo}".
+    const crista = b.genero === 'Livro Cristão';
+    const prompt=`Você é um escritor profissional${crista?' cristão especializado em literatura bíblica e devocional':' de '+( b.genero||'ficção')}. Escreva o capítulo ${ch.num} do livro "${b.titulo}".
 
 Ideia geral: "${b.resumo}"
 Título deste capítulo: "${ch.titulo}"
 O que acontece: "${ch.resumo}"
+${crista?`
+IMPORTANTE: Este é um livro cristão. Em cada capítulo:
+- Inclua pelo menos 2 versículos bíblicos relevantes ao tema, citando o livro, capítulo e versículo (ex: João 3:16)
+- Os versículos devem estar integrados naturalmente ao texto, não apenas listados
+- Use linguagem edificante, esperançosa e baseada nas escrituras
+- Termine o capítulo com uma reflexão ou oração curta`:''}
 
 Escreva o capítulo completo com NO MÍNIMO 2000 caracteres. Linguagem fluida, rica em detalhes e emoção. Retorne APENAS o texto do capítulo.`;
 
